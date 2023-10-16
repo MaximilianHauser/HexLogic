@@ -113,7 +113,7 @@ Linear interpolation returns point at t of distance between a and b on a cartesi
 **cube_linint(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords, t:int|float, return_coords_obj:bool=False) -> tuple|HexCoords:**  
 Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
     
-**round_container(container:dict|list|set|tuple|RectCoords, *, d:int=0) -> dict|list|set|tuple|RectCoords:**  
+**round_container(container:dict|list|set|tuple|RectCoords, d:int=0) -> dict|list|set|tuple|RectCoords:**  
 Rounds each number in a container to the specified decimal, if None is specified to the nearest Integer.
     
 **round_hex(qrs:tuple|HexCoords, return_coords_obj:bool=False) -> tuple|HexCoords:**  
@@ -134,7 +134,7 @@ Set q r and s attribute of obj to specified values.
 **hex_to_pixel(qrs:object|tuple|HexCoords, tile_width:int=64, tile_height:int=64, return_coords_obj:bool=False) -> tuple|RectCoords:**  
 Converts cube coordinates to pixel coordinates.
     
-**pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:int=64, return_coords_obj:bool=False) -> tuple|HexCoords:**  
+**pixel_to_hex(xy:object|tuple|RectCoords, tile_width:int=64, tile_height:int=64, return_coords_obj:bool=False) -> tuple|HexCoords:**  
 Converts pixel coordinates to cube coordinates.
     
 **neighbors(qrs:object|tuple|HexCoords) -> set:**  
