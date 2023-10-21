@@ -11,9 +11,6 @@ from hexlogic import RectCoords, HexCoords, ConstraintViolation
 import unittest
 from unittest.mock import Mock
 
-# external libraries -------------------------------------------------------- #
-import numpy as np
-import pandas as pd
 
 # unittests ----------------------------------------------------------------- #
 def testgrp_generator(center_obj:object|tuple|HexCoords, radius:int, override_coords:tuple=False) -> set:
@@ -57,7 +54,7 @@ def testgrp_generator(center_obj:object|tuple|HexCoords, radius:int, override_co
 
 def testgrp_teardown(test_grp:list) -> None:
     """
-    Clean dispose of the Mock objects in test_grp and test_grp.
+    NOT WORKING Clean dispose of the Mock objects in test_grp and test_grp. NOT WORKING
     """
     for obj in test_grp:
         obj.dispose()
@@ -68,7 +65,7 @@ def testgrp_teardown(test_grp:list) -> None:
 class TestTestgrpGenerator(unittest.TestCase):
     """
     Includes a test of testgrp_teardown in the tearDown section of the unittest 
-    for simplicity reasons.
+    for simplicity reasons. testgrp_teardown NOT WORKING
     """
     def setUp(self):
         self.test_grp = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"block":True} ), (-1, 1, 0, {"s":"0"} )))
@@ -125,6 +122,67 @@ class TestHexCoords(unittest.TestCase):
         
     def tearDown(self):
         del self.hc_test_obj_4
+        
+        
+# Test GraphMatrix ---------------------------------------------------------- #
+class TestGraphMatrix(unittest.TestCase):
+    
+    def setUp(self):
+        # TypeError --------------------------------------------------------- #
+        self.test_grp_0 = testgrp_generator((0, 0, 0), 2, ((0, -1, 1, {"r":"-1"} ), 
+                                                          (1, -1, 0, {"movement_cost":3} ) ))
+        # AttributeError ---------------------------------------------------- #
+        self.test_grp_1 = testgrp_generator((0, 0, 0), 2, ((-1, -1, 2, {"r":"del"} ), 
+                                                          (0, 1, -1, {"movement_cost":7} ) ))
+        # ConstraintViolation ----------------------------------------------- #
+        self.test_grp_2 = testgrp_generator((0, 0, 0), 2, ((-1, -1, 2, {"q":-3} ), 
+                                                          (0, 1, -1, {"movement_cost":7} ) ))
+        # test input expected output ---------------------------------------- #
+        self.test_grp_3 = testgrp_generator((0, 0, 0), 1, ((0, -1, 1, {"movement_cost":2} ), 
+                                                          (1, -1, 0, {"movement_cost":3} ), 
+                                                          (-1, 1, 0, {"movement_cost":4} ) ))
+        control_rows = {(-1, 0, 1): [0, 2, 0, 1, 4, 0, 0], 
+                        (0, -1, 1): [1, 0, 0, 1, 0, 3, 0],
+                        (1, 0, -1): [0, 0, 0, 1, 0, 3, 1],
+                        (0, 0, 0): [1, 2, 1, 0, 4, 3, 1],
+                        (-1, 1, 0): [1, 0, 0, 1, 0, 0, 1],
+                        (1, -1, 0): [0, 2, 1, 1, 0, 0, 0],
+                        (0, 1, -1): [0, 0, 1, 1, 4, 0, 0]
+                        }
+        columns = [(-1, 0, 1), (0, -1, 1), (1, 0, -1), (0, 0, 0), (-1, 1, 0), (1, -1, 0), (0, 1, -1)]
+        
+        self.control_dict = dict()
+        
+        for key in control_rows.keys():
+            for i in range(len(control_rows[key])):
+                f = key
+                t = columns[i]
+                mc = control_rows[key][i]
+                if mc > 0:
+                    if f in self.control_dict.keys():
+                        self.control_dict[f].update({t:mc})
+                    else:
+                        self.control_dict.update({f:{t:mc}})
+    
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            test_matrix_0 = hl.GraphMatrix(self.test_grp_0)
+        
+        with self.assertRaises(AttributeError):
+            test_matrix_1 = hl.GraphMatrix(self.test_grp_1)
+        
+        with self.assertRaises(ConstraintViolation):
+            test_matrix_2 = hl.GraphMatrix(self.test_grp_2)
+    
+    def test_attributes(self):
+        test_matrix_3 = hl.GraphMatrix(self.test_grp_3)
+        self.assertEqual(test_matrix_3.matrix_dict, self.control_dict)
+    
+    def tearDown(self):
+        del self.test_grp_0
+        del self.test_grp_1
+        del self.test_grp_2
+        del self.test_grp_3
         
 
 # Test FloatOrInt ----------------------------------------------------------- #
@@ -363,6 +421,9 @@ class TestCubeLinint(unittest.TestCase):
 
 # TestRoundContainer -------------------------------------------------------- #
 class TestRoundContainer(unittest.TestCase):
+    """
+    Interim solution until round_container in final form.
+    """
     
     def test_error(self):
         with self.assertRaises(TypeError):
@@ -890,72 +951,12 @@ class TestDistLimFloodFill(unittest.TestCase):
         self.obj_1.dispose()
         self.obj_2.dispose()
         self.obj_3.dispose()
-
-
-# TestCreateGraphMatrix ----------------------------------------------------- #
-class TestCreateGraphMatrix(unittest.TestCase):
-    """
-    Test dependent on in_range function.
-    """
-    def setUp(self):
-        # TypeError --------------------------------------------------------- #
-        self.test_grp_0 = testgrp_generator((0, 0, 0), 2, ((0, -1, 1, {"r":"-1"} ), 
-                                                          (1, -1, 0, {"movement_cost":3} ) ))
-        # AttributeError ---------------------------------------------------- #
-        self.test_grp_1 = testgrp_generator((0, 0, 0), 2, ((-1, -1, 2, {"r":"del"} ), 
-                                                          (0, 1, -1, {"movement_cost":7} ) ))
-        # ConstraintViolation ----------------------------------------------- #
-        self.test_grp_2 = testgrp_generator((0, 0, 0), 2, ((-1, -1, 2, {"q":-3} ), 
-                                                          (0, 1, -1, {"movement_cost":7} ) ))
-        # test input expected output ---------------------------------------- #
-        self.test_grp_3 = testgrp_generator((0, 0, 0), 1, ((0, -1, 1, {"movement_cost":2} ), 
-                                                          (1, -1, 0, {"movement_cost":3} ), 
-                                                          (-1, 1, 0, {"movement_cost":4} ) ))
-        control_dict = {(-1, 0, 1): [1, 2, 0, 1, 4, 0, 0], 
-                        (0, -1, 1): [1, 1, 0, 1, 0, 3, 0],
-                        (1, 0, -1): [0, 0, 1, 1, 0, 3, 1],
-                        (0, 0, 0): [1, 2, 1, 1, 4, 3, 1],
-                        (-1, 1, 0): [1, 0, 0, 1, 1, 0, 1],
-                        (1, -1, 0): [0, 2, 1, 1, 0, 1, 0],
-                        (0, 1, -1): [0, 0, 1, 1, 4, 0, 1]
-                        }
-        self.control_df = pd.DataFrame.from_dict(control_dict, orient="index", 
-                                                 columns=[(-1, 0, 1), (0, -1, 1), 
-                                                          (1, 0, -1), (0, 0, 0), 
-                                                          (-1, 1, 0), (1, -1, 0), 
-                                                          (0, 1, -1)])
-    
-    def test_error(self):
-        with self.assertRaises(TypeError):
-            hl.create_graph_matrix(self.test_grp_0)
-        
-        with self.assertRaises(AttributeError):
-            hl.create_graph_matrix(self.test_grp_1)
-        
-        with self.assertRaises(ConstraintViolation):
-            hl.create_graph_matrix(self.test_grp_2)
-    
-    def test_inout(self):
-        for i in range(len(self.control_df.index.tolist())):
-            for j in range(len(self.control_df.index.tolist())):
-                row = self.control_df.index.tolist()[i]
-                col = self.control_df.index.tolist()[j]
-                cell_test_grp = hl.create_graph_matrix(self.test_grp_3).at[row, col]
-                control_df = self.control_df.at[row, col]
-                self.assertEqual(cell_test_grp, control_df)
-    
-    def tearDown(self):
-        del self.test_grp_0
-        del self.test_grp_1
-        del self.test_grp_2
-        del self.test_grp_3
-        del self.control_df
     
     
 # TestBreadthFirstSearch ---------------------------------------------------- #
 class TestBreadthFirstSearch(unittest.TestCase):
     """
-    Test depends on create_graph_matrix.
+    Test depends on GraphMatrix object.
     """
     def setUp(self):
         # AttributeError ---------------------------------------------------- #
@@ -979,20 +980,20 @@ class TestBreadthFirstSearch(unittest.TestCase):
                                                           (2, -4, 2, {"movement_cost":0} ),
                                                           (3, -5, 2, {"movement_cost":0} )
                                                           ))
-        self.graph_matrix_df_3 = hl.create_graph_matrix(self.test_grp_3)
+        self.graph_matrix_3 = hl.GraphMatrix(self.test_grp_3)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            hl.breadth_first_search((0, 5, "-5"), (0, -5, 5), self.graph_matrix_df_3)
+            hl.breadth_first_search((0, 5, "-5"), (0, -5, 5), self.graph_matrix_3)
         
         with self.assertRaises(AttributeError):
-            hl.breadth_first_search(self.obj_0, (0, -5, 5), self.graph_matrix_df_3)
+            hl.breadth_first_search(self.obj_0, (0, -5, 5), self.graph_matrix_3)
         
         with self.assertRaises(ConstraintViolation):
-            hl.breadth_first_search((1, 5, -5), (0, -5, 5), self.graph_matrix_df_3)
+            hl.breadth_first_search((1, 5, -5), (0, -5, 5), self.graph_matrix_3)
     
     def test_inout(self):
-        self.assertEqual(hl.breadth_first_search((0, 5, -5), (0, -5, 5), self.graph_matrix_df_3), 
+        self.assertEqual(hl.breadth_first_search((0, 5, -5), (0, -5, 5), self.graph_matrix_3), 
                          [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), (3, 0, -3), 
                           (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), (-1, 0, 1), (-2, 1, 1), 
                           (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), 
@@ -1001,13 +1002,13 @@ class TestBreadthFirstSearch(unittest.TestCase):
     def tearDown(self):
         self.obj_0.dispose()
         del self.test_grp_3
-        del self.graph_matrix_df_3
+        del self.graph_matrix_3
     
     
 # TestDijekstrasAlgorithm --------------------------------------------------- #
 class TestDijekstrasAlgorithm(unittest.TestCase):
     """
-    Test depends on create_graph_matrix.
+    Test depends on GraphMatrix object.
     """
     def setUp(self):
         # AttributeError ---------------------------------------------------- #
@@ -1031,20 +1032,20 @@ class TestDijekstrasAlgorithm(unittest.TestCase):
                                                           (2, -4, 2, {"movement_cost":0} ),
                                                           (3, -5, 2, {"movement_cost":0} )
                                                           ))
-        self.graph_matrix_df_3 = hl.create_graph_matrix(self.test_grp_3)
+        self.graph_matrix_3 = hl.GraphMatrix(self.test_grp_3)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            hl.dijkstras_algorithm((0, 5, "-5"), (0, -5, 5), self.graph_matrix_df_3)
+            hl.dijkstras_algorithm((0, 5, "-5"), (0, -5, 5), self.graph_matrix_3)
         
         with self.assertRaises(AttributeError):
-            hl.dijkstras_algorithm(self.obj_0, (0, -5, 5), self.graph_matrix_df_3)
+            hl.dijkstras_algorithm(self.obj_0, (0, -5, 5), self.graph_matrix_3)
         
         with self.assertRaises(ConstraintViolation):
-            hl.dijkstras_algorithm((1, 5, -5), (0, -5, 5), self.graph_matrix_df_3)
+            hl.dijkstras_algorithm((1, 5, -5), (0, -5, 5), self.graph_matrix_3)
     
     def test_inout(self):
-        self.assertEqual(hl.dijkstras_algorithm((0, 5, -5), (0, -5, 5), self.graph_matrix_df_3),
+        self.assertEqual(hl.dijkstras_algorithm((0, 5, -5), (0, -5, 5), self.graph_matrix_3),
                          [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
                           (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
                           (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
@@ -1055,13 +1056,13 @@ class TestDijekstrasAlgorithm(unittest.TestCase):
     def tearDown(self):
         self.obj_0.dispose()
         del self.test_grp_3
-        del self.graph_matrix_df_3
+        del self.graph_matrix_3
     
     
 # TestAStarAlgorithm -------------------------------------------------------- #
 class TestAStarAlgorithm(unittest.TestCase):
     """
-    Test depends on create_graph_matrix.
+    Test depends on GraphMatrix object.
     """
     def setUp(self):
         # AttributeError ---------------------------------------------------- #
@@ -1085,20 +1086,20 @@ class TestAStarAlgorithm(unittest.TestCase):
                                                           (2, -4, 2, {"movement_cost":0} ),
                                                           (3, -5, 2, {"movement_cost":0} )
                                                           ))
-        self.graph_matrix_df_3 = hl.create_graph_matrix(self.test_grp_3)
+        self.graph_matrix_3 = hl.GraphMatrix(self.test_grp_3)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            hl.a_star_algorithm((0, 5, "-5"), (0, -5, 5), self.graph_matrix_df_3)
+            hl.a_star_algorithm((0, 5, "-5"), (0, -5, 5), self.graph_matrix_3)
         
         with self.assertRaises(AttributeError):
-            hl.a_star_algorithm(self.obj_0, (0, -5, 5), self.graph_matrix_df_3)
+            hl.a_star_algorithm(self.obj_0, (0, -5, 5), self.graph_matrix_3)
         
         with self.assertRaises(ConstraintViolation):
-            hl.a_star_algorithm((1, 5, -5), (0, -5, 5), self.graph_matrix_df_3)
+            hl.a_star_algorithm((1, 5, -5), (0, -5, 5), self.graph_matrix_3)
     
     def test_inout(self):
-        self.assertEqual(hl.a_star_algorithm((0, 5, -5), (0, -5, 5), self.graph_matrix_df_3),
+        self.assertEqual(hl.a_star_algorithm((0, 5, -5), (0, -5, 5), self.graph_matrix_3),
                          [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
                           (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
                           (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
@@ -1108,7 +1109,7 @@ class TestAStarAlgorithm(unittest.TestCase):
     def tearDown(self):
         self.obj_0.dispose()
         del self.test_grp_3
-        del self.graph_matrix_df_3
+        del self.graph_matrix_3
     
 
 # run unittests ------------------------------------------------------------- #

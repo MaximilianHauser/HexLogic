@@ -9,6 +9,7 @@ __version__ = "0.2.0"
 
 from hexlogic import RectCoords as RectCoords
 from hexlogic import HexCoords as HexCoords
+from hexlogic import GraphMatrix as GraphMatrix
 from hexlogic import float_to_int as float_to_int
 from hexlogic import tuple_or_object as tuple_or_object
 from hexlogic import linint as linint
@@ -27,7 +28,6 @@ from hexlogic import distance as distance
 from hexlogic import in_range as in_range
 from hexlogic import line_draw as line_draw
 from hexlogic import dist_lim_flood_fill as dist_lim_flood_fill
-from hexlogic import create_graph_matrix as create_graph_matrix
 from hexlogic import breadth_first_search as breadth_first_search
 from hexlogic import dijkstras_algorithm as dijkstras_algorithm
 from hexlogic import a_star_algorithm as a_star_algorithm
