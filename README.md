@@ -175,6 +175,7 @@ List of issues to be solved before the package will be released at version 1.0
 * [ ] add a set that is automatically updated, containing all coordinates which are linked in GraphMatrix
 * [ ] write a working testgrp_teardown
 * [ ] replace "block_var" artifacts with movement_cost = 0 -> tile = blocked for "dist_lim_flood_fill"
+* [ ] add pathfinding functions as methods to GraphMatrix?
 
 
 ## References

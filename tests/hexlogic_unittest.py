@@ -6,8 +6,15 @@ Created on Sun Oct 15 14:48:51 2023
 """
 
 # import section ------------------------------------------------------------ #
+# add parent directory ------------------------------------------------------ #
+import sys
+sys.path.append("..")
+# imports from parent directory --------------------------------------------- #
 import hexlogic as hl
-from hexlogic import RectCoords, HexCoords, ConstraintViolation
+from hexlogic import RectCoords
+from hexlogic import HexCoords
+from hexlogic import ConstraintViolation
+# built-in libraries -------------------------------------------------------- #
 import unittest
 from unittest.mock import Mock
 
