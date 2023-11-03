@@ -10,10 +10,10 @@ Created on Sun Oct 15 14:48:51 2023
 import sys
 sys.path.append("..")
 # imports from parent directory --------------------------------------------- #
-import hexlogic as hl
-from hexlogic import RectCoords
-from hexlogic import HexCoords
-from hexlogic import ConstraintViolation
+from src import hexlogic as hl
+from src.hexlogic import RectCoords as RectCoords
+from src.hexlogic import HexCoords as HexCoords
+from src.hexlogic import ConstraintViolation as ConstraintViolation
 # built-in libraries -------------------------------------------------------- #
 import unittest
 from unittest.mock import Mock
@@ -92,12 +92,12 @@ class TestTestgrpGenerator(unittest.TestCase):
 class TestRectCoords(unittest.TestCase):
     
     def setUp(self):
-        self.rc_test_obj_2 = RectCoords(2, 5)
+        self.rc_test_obj_2 = hl.RectCoords(2, 5)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            rc_test_obj_0 = RectCoords("2", 5)
-            rc_test_obj_1 = RectCoords(2, "5")
+            rc_test_obj_0 = hl.RectCoords("2", 5)
+            rc_test_obj_1 = hl.RectCoords(2, "5")
     
     def test_attributes(self):
         self.assertIs(self.rc_test_obj_2.x, 2)
@@ -111,16 +111,16 @@ class TestRectCoords(unittest.TestCase):
 class TestHexCoords(unittest.TestCase):
     
     def setUp(self):
-        self.hc_test_obj_4 = HexCoords(1, -1, 0)
+        self.hc_test_obj_4 = hl.HexCoords(1, -1, 0)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            hc_test_obj_0 = HexCoords("1", -1, 0)
-            hc_test_obj_1 = HexCoords(1, "-1", 0)
-            hc_test_obj_2 = HexCoords(1, -1, "0")
+            hc_test_obj_0 = hl.HexCoords("1", -1, 0)
+            hc_test_obj_1 = hl.HexCoords(1, "-1", 0)
+            hc_test_obj_2 = hl.HexCoords(1, -1, "0")
             
-        with self.assertRaises(ConstraintViolation):
-            hc_test_obj_3 = HexCoords(1, -1, 1)
+        with self.assertRaises(hl.ConstraintViolation):
+            hc_test_obj_3 = hl.HexCoords(1, -1, 1)
     
     def test_attributes(self):
         self.assertIs(self.hc_test_obj_4.q, 1)
@@ -144,7 +144,7 @@ class TestGraphMatrix(unittest.TestCase):
         # ConstraintViolation ----------------------------------------------- #
         self.test_grp_2 = testgrp_generator((0, 0, 0), 2, ((-1, -1, 2, {"q":-3} ), 
                                                           (0, 1, -1, {"movement_cost":7} ) ))
-        # test input expected output ---------------------------------------- #
+        # test input expected output init ----------------------------------- #
         self.test_grp_3 = testgrp_generator((0, 0, 0), 1, ((0, -1, 1, {"movement_cost":2} ), 
                                                           (1, -1, 0, {"movement_cost":3} ), 
                                                           (-1, 1, 0, {"movement_cost":4} ) ))
@@ -170,26 +170,100 @@ class TestGraphMatrix(unittest.TestCase):
                         self.control_dict[f].update({t:mc})
                     else:
                         self.control_dict.update({f:{t:mc}})
+                        
+        self.test_matrix_3 = hl.GraphMatrix(self.test_grp_3)
+        
+        # test input expected output pathfinding ---------------------------- #
+        self.test_grp_4 = testgrp_generator((0, 0, 0), 5, ( (2, 0, -2, {"movement_cost":0} ), 
+                                                          (1, 1, -2, {"movement_cost":0} ), 
+                                                          (0, 2, -2, {"movement_cost":0} ), 
+                                                          (-1, 3, -2, {"movement_cost":0} ),
+                                                          (-2, 4, -2, {"movement_cost":0} ),
+                                                          (-3, 5, -2, {"movement_cost":0} ),
+                                                          (-4, 6, -2, {"movement_cost":0} ),
+                                                          (-3, 1, 2, {"movement_cost":0} ),
+                                                          (-2, 0, 2, {"movement_cost":0} ),
+                                                          (-1, -1, 2, {"movement_cost":0} ),
+                                                          (0, -2, 2, {"movement_cost":0} ),
+                                                          (1, -3, 2, {"movement_cost":0} ),
+                                                          (2, -4, 2, {"movement_cost":0} ),
+                                                          (3, -5, 2, {"movement_cost":0} )
+                                                          ))
     
-    def test_error(self):
+        self.test_matrix_4 = hl.GraphMatrix(self.test_grp_4)
+    
+    def test_init_error(self):
         with self.assertRaises(TypeError):
             test_matrix_0 = hl.GraphMatrix(self.test_grp_0)
         
         with self.assertRaises(AttributeError):
             test_matrix_1 = hl.GraphMatrix(self.test_grp_1)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             test_matrix_2 = hl.GraphMatrix(self.test_grp_2)
     
-    def test_attributes(self):
-        test_matrix_3 = hl.GraphMatrix(self.test_grp_3)
-        self.assertEqual(test_matrix_3.matrix_dict, self.control_dict)
+    def test_init_attributes(self):
+        self.assertEqual(self.test_matrix_3.matrix_dict, self.control_dict)
+        
+    def test_breadth_first_search_error(self):
+        with self.assertRaises(TypeError):
+            self.test_matrix_4.breadth_first_search((0, 5, "-5"), (0, -5, 5))
+        
+        with self.assertRaises(AttributeError):
+            self.test_matrix_4.breadth_first_search(self.obj_0, (0, -5, 5))
+        
+        with self.assertRaises(hl.ConstraintViolation):
+            self.test_matrix_4.breadth_first_search((1, 5, -5), (0, -5, 5))
+    
+    def test_breadth_first_search_inout(self):
+        self.assertEqual(self.test_matrix_4.breadth_first_search((0, 5, -5), (0, -5, 5)), 
+                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), (3, 0, -3), 
+                          (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), (-1, 0, 1), (-2, 1, 1), 
+                          (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), 
+                          (0, -3, 3), (0, -4, 4), (0, -5, 5)])
+    
+    def test_dijkstras_algorithm_error(self):
+        with self.assertRaises(TypeError):
+            self.test_matrix_4.dijkstras_algorithm((0, 5, "-5"), (0, -5, 5))
+        
+        with self.assertRaises(AttributeError):
+            self.test_matrix_4.dijkstras_algorithm(self.obj_0, (0, -5, 5))
+        
+        with self.assertRaises(hl.ConstraintViolation):
+            self.test_matrix_4.dijkstras_algorithm((1, 5, -5), (0, -5, 5))
+    
+    def test_dijkstras_algorithm_inout(self):
+        self.assertEqual(self.test_matrix_4.dijkstras_algorithm((0, 5, -5), (0, -5, 5)),
+                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
+                          (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
+                          (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
+                          (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), (0, -3, 3), (0, -4, 4), 
+                          (0, -5, 5)])
+    
+    def test_a_star_algorithm_error(self):
+        with self.assertRaises(TypeError):
+            self.test_matrix_4.a_star_algorithm((0, 5, "-5"), (0, -5, 5))
+        
+        with self.assertRaises(AttributeError):
+            self.test_matrix_4.a_star_algorithm(self.obj_0, (0, -5, 5))
+        
+        with self.assertRaises(hl.ConstraintViolation):
+            self.test_matrix_4.a_star_algorithm((1, 5, -5), (0, -5, 5))
+    
+    def test_a_star_algorithm_inout(self):
+        self.assertEqual(self.test_matrix_4.a_star_algorithm((0, 5, -5), (0, -5, 5)),
+                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
+                          (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
+                          (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
+                          (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), (0, -3, 3), (0, -4, 4), 
+                          (0, -5, 5)])
     
     def tearDown(self):
         del self.test_grp_0
         del self.test_grp_1
         del self.test_grp_2
         del self.test_grp_3
+        del self.test_grp_4
         
 
 # Test FloatOrInt ----------------------------------------------------------- #
@@ -242,28 +316,28 @@ class TestTupleOrObject(unittest.TestCase):
             hl.tuple_or_object(2, 2)
         with self.assertRaises(AttributeError):
             hl.tuple_or_object(self.obj_1, 2)
-        with self.assertRaises(ConstraintViolation):
-            hl.tuple_or_object(HexCoords(1, 2, 3), 3)
+        with self.assertRaises(hl.ConstraintViolation):
+            hl.tuple_or_object(hl.HexCoords(1, 2, 3), 3)
         
     def test_inout(self):
         # Object 2dim as input ---------------------------------------------- #
         self.assertEqual(hl.tuple_or_object(self.obj_0, 2), (1, 1))
-        self.assertEqual(hl.tuple_or_object(self.obj_0, 2, return_coords_obj=True), RectCoords(1, 1))
+        self.assertEqual(hl.tuple_or_object(self.obj_0, 2, return_coords_obj=True), hl.RectCoords(1, 1))
         # Object 3dim as input ---------------------------------------------- #
         self.assertEqual(hl.tuple_or_object(self.obj_0, 3), (2, -2, 0))
-        self.assertEqual(hl.tuple_or_object(self.obj_0, 3, return_coords_obj=True), HexCoords(2, -2, 0))
+        self.assertEqual(hl.tuple_or_object(self.obj_0, 3, return_coords_obj=True), hl.HexCoords(2, -2, 0))
         # Tuple 2dim as input ----------------------------------------------- #
         self.assertEqual(hl.tuple_or_object((2, 3), 2), (2, 3))
-        self.assertEqual(hl.tuple_or_object((2, 3), 2, return_coords_obj=True), RectCoords(2, 3))
+        self.assertEqual(hl.tuple_or_object((2, 3), 2, return_coords_obj=True), hl.RectCoords(2, 3))
         # Tuple 3dim as input ----------------------------------------------- #
         self.assertEqual(hl.tuple_or_object((3, 0, -3), 3), (3, 0, -3))
-        self.assertEqual(hl.tuple_or_object((3, 0, -3), 3, return_coords_obj=True), HexCoords(3, 0, -3))
+        self.assertEqual(hl.tuple_or_object((3, 0, -3), 3, return_coords_obj=True), hl.HexCoords(3, 0, -3))
         # RectCoords as input ----------------------------------------------- #
-        self.assertEqual(hl.tuple_or_object(RectCoords(2, 3), 2), (2, 3))
-        self.assertEqual(hl.tuple_or_object(RectCoords(2, 3), 2, return_coords_obj=True), RectCoords(2, 3))
+        self.assertEqual(hl.tuple_or_object(hl.RectCoords(2, 3), 2), (2, 3))
+        self.assertEqual(hl.tuple_or_object(hl.RectCoords(2, 3), 2, return_coords_obj=True), hl.RectCoords(2, 3))
         # HexCoords as input ------------------------------------------------ #
-        self.assertEqual(hl.tuple_or_object(HexCoords(3, 0, -3), 3), (3, 0, -3))
-        self.assertEqual(hl.tuple_or_object(HexCoords(3, 0, -3), 3, return_coords_obj=True), HexCoords(3, 0, -3))
+        self.assertEqual(hl.tuple_or_object(hl.HexCoords(3, 0, -3), 3), (3, 0, -3))
+        self.assertEqual(hl.tuple_or_object(hl.HexCoords(3, 0, -3), 3, return_coords_obj=True), hl.HexCoords(3, 0, -3))
         
     def tearDown(self):
         self.obj_0.dispose()
@@ -380,7 +454,7 @@ class TestCubeLinint(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.cube_linint(self.obj_2, (2, 0, -2), 0.2)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.cube_linint((1, 0, -2), self.obj_0, 0.5)
     
     def test_inout(self):
@@ -451,17 +525,17 @@ class TestRoundHex(unittest.TestCase):
         with self.assertRaises(TypeError):
             hl.round_hex((2, 0, "-2"))
             hl.round_hex((2, "0", -2))
-            hl.round_hex(HexCoords("2", 0, -2))
+            hl.round_hex(hl.HexCoords("2", 0, -2))
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.round_hex((2, 2, 3), return_coords_obj=True)
-            hl.round_hex(HexCoords(2, 2, 3), return_coords_obj=True)
+            hl.round_hex(hl.HexCoords(2, 2, 3), return_coords_obj=True)
     
     def test_inout(self):
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3)), (1, 3, -4))
-        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_coords_obj=True), HexCoords(1, 3, -4))
-        self.assertEqual(hl.round_hex(HexCoords(0.9, 1.8, -2.7)), HexCoords(1, 2, -3))
-        self.assertEqual(hl.round_hex(HexCoords(0.9, 1.8, -2.7), return_coords_obj=True), HexCoords(1, 2, -3))
+        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_coords_obj=True), hl.HexCoords(1, 3, -4))
+        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7)), hl.HexCoords(1, 2, -3))
+        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_coords_obj=True), hl.HexCoords(1, 2, -3))
 
 
 # TestGetxy ----------------------------------------------------------------- #  
@@ -578,7 +652,7 @@ class TestSetqrs(unittest.TestCase):
         with self.assertRaises(TypeError):
             hl.set_qrs(self.obj_0, 1, 0, "-1")
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.set_qrs(self.obj_0, 1, 1, 0)
     
     def test_inout(self):
@@ -620,7 +694,7 @@ class TestHexToPixel(unittest.TestCase):
             hl.hex_to_pixel(self.obj_0)
         with self.assertRaises(AttributeError):
             hl.hex_to_pixel(self.obj_1)
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.hex_to_pixel((2, 0, -1))
     
     def test_inout(self):
@@ -699,7 +773,7 @@ class TestNeighbors(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.neighbors(self.obj_0)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.neighbors((1, 0, -2))
     
     def test_inout(self):
@@ -750,7 +824,7 @@ class TestDistance(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.distance((0, 0, 0), self.obj_0)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.distance((0, -1, 2), (-2, 0, 2))
     
     def test_inout(self):
@@ -803,7 +877,7 @@ class TestInRange(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.in_range(self.obj_1, 1)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.in_range((1, 0, -2), 3)
     
     def test_inout(self):
@@ -864,7 +938,7 @@ class TestLineDraw(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.line_draw(self.obj_2, self.obj_1)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.line_draw(HexCoords(0, 0, 0), (1, -3, 1))
     
     def test_inout(self):
@@ -903,36 +977,36 @@ class TestDistLimFloodFill(unittest.TestCase):
         self.obj_0.q = 0
         self.obj_0.r = 0
         self.obj_0.s = 0
-        self.obj_0.block = False
+        self.obj_0.movement_cost = 1
         self.test_grp_0 = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"q":"-1"} ), (-1, 1, 0, {"s":"0"} )))
         # AttributeError ---------------------------------------------------- #
         self.obj_1 = Mock()
         self.obj_1.q = 0
         self.obj_1.r = 0
         del self.obj_1.s
-        self.obj_1.block = False
+        self.obj_1.movement_cost = 1
         self.test_grp_1 = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"q":"del"} ), (-1, 1, 0, {"s":"del"} )))
         # ConstraintViolation ----------------------------------------------- #
         self.obj_2 = Mock()
         self.obj_2.q = 0
         self.obj_2.r = 0
         self.obj_2.s = -1
-        self.obj_2.block = False
+        self.obj_2.movement_cost = 1
         self.test_grp_2 = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"q":0} ), (-1, 1, 0, {"s":"1"} )))
         # test input expected output ---------------------------------------- #
         self.obj_3 = Mock()
         self.obj_3.q = 0
         self.obj_3.r = 0
         self.obj_3.s = 0
-        self.obj_3.block = False
-        self.test_grp_3 = testgrp_generator((0, 0, 0), 2, ((0, -1, 1, {"block":True} ), 
-                                                          (1, -1, 0, {"block":True} ), 
-                                                          (-1, 1, 0, {"block":True} ), 
-                                                          (1, 1, -2, {"block":True} ) ))
-        self.test_grp_4 = testgrp_generator((0, 0, 0), 2, ((2, 0, -2, {"block":True} ), 
-                                                             (1, 1, -2, {"block":True} ), 
-                                                             (0, 2, -2, {"block":True} ), 
-                                                             (-1, 0, 1, {"block":True} ) ))
+        self.obj_3.movement_cost = 1
+        self.test_grp_3 = testgrp_generator((0, 0, 0), 2, ((0, -1, 1, {"movement_cost":0} ), 
+                                                          (1, -1, 0, {"movement_cost":0} ), 
+                                                          (-1, 1, 0, {"movement_cost":0} ), 
+                                                          (1, 1, -2, {"movement_cost":0} ) ))
+        self.test_grp_4 = testgrp_generator((0, 0, 0), 2, ((2, 0, -2, {"movement_cost":0} ), 
+                                                             (1, 1, -2, {"movement_cost":0} ), 
+                                                             (0, 2, -2, {"movement_cost":0} ), 
+                                                             (-1, 0, 1, {"movement_cost":0} ) ))
         
     def test_error(self):
         with self.assertRaises(TypeError):
@@ -943,14 +1017,14 @@ class TestDistLimFloodFill(unittest.TestCase):
             hl.dist_lim_flood_fill(self.obj_3, 1, self.test_grp_1)
             hl.dist_lim_flood_fill(self.obj_0, 1, self.test_grp_3)
         
-        with self.assertRaises(ConstraintViolation):
+        with self.assertRaises(hl.ConstraintViolation):
             hl.dist_lim_flood_fill(self.obj_2, 1, self.test_grp_3)
             hl.dist_lim_flood_fill(self.obj_3, 1, self.test_grp_2)
     
     def test_inout(self):
-        self.assertEqual(hl.dist_lim_flood_fill(self.obj_3, 2, self.test_grp_3, block_var="block"), 
+        self.assertEqual(hl.dist_lim_flood_fill(self.obj_3, 2, self.test_grp_3), 
                          {(-1, 0, 1), (1, 0, -1), (-1, -1, 2), (-2, 1, 1), (-1, 2, -1), (0, 0, 0), (2, 0, -2), (2, -1, -1), (0, 2, -2), (0, 1, -1), (-2, 0, 2)})
-        self.assertEqual(hl.dist_lim_flood_fill(self.obj_3, 2, self.test_grp_4, block_var="block"), 
+        self.assertEqual(hl.dist_lim_flood_fill(self.obj_3, 2, self.test_grp_4), 
                          {(2, -2, 0), (1, 0, -1), (0, -1, 1), (-1, -1, 2), (-2, 1, 1), (-1, 2, -1), (0, 0, 0), (1, -2, 1), (-1, 1, 0), (2, -1, -1), (-2, 2, 0), (1, -1, 0), (0, 1, -1), (0, -2, 2)})
     
     def tearDown(self):
@@ -958,165 +1032,6 @@ class TestDistLimFloodFill(unittest.TestCase):
         self.obj_1.dispose()
         self.obj_2.dispose()
         self.obj_3.dispose()
-    
-    
-# TestBreadthFirstSearch ---------------------------------------------------- #
-class TestBreadthFirstSearch(unittest.TestCase):
-    """
-    Test depends on GraphMatrix object.
-    """
-    def setUp(self):
-        # AttributeError ---------------------------------------------------- #
-        self.obj_0 = Mock()
-        self.obj_0.q = 0
-        self.obj_0.r = 0
-        del self.obj_0.s
-        # test input expected output ---------------------------------------- #
-        self.test_grp_3 = testgrp_generator((0, 0, 0), 5, ( (2, 0, -2, {"movement_cost":0} ), 
-                                                          (1, 1, -2, {"movement_cost":0} ), 
-                                                          (0, 2, -2, {"movement_cost":0} ), 
-                                                          (-1, 3, -2, {"movement_cost":0} ),
-                                                          (-2, 4, -2, {"movement_cost":0} ),
-                                                          (-3, 5, -2, {"movement_cost":0} ),
-                                                          (-4, 6, -2, {"movement_cost":0} ),
-                                                          (-3, 1, 2, {"movement_cost":0} ),
-                                                          (-2, 0, 2, {"movement_cost":0} ),
-                                                          (-1, -1, 2, {"movement_cost":0} ),
-                                                          (0, -2, 2, {"movement_cost":0} ),
-                                                          (1, -3, 2, {"movement_cost":0} ),
-                                                          (2, -4, 2, {"movement_cost":0} ),
-                                                          (3, -5, 2, {"movement_cost":0} )
-                                                          ))
-        self.graph_matrix_3 = hl.GraphMatrix(self.test_grp_3)
-    
-    def test_error(self):
-        with self.assertRaises(TypeError):
-            hl.breadth_first_search((0, 5, "-5"), (0, -5, 5), self.graph_matrix_3)
-        
-        with self.assertRaises(AttributeError):
-            hl.breadth_first_search(self.obj_0, (0, -5, 5), self.graph_matrix_3)
-        
-        with self.assertRaises(ConstraintViolation):
-            hl.breadth_first_search((1, 5, -5), (0, -5, 5), self.graph_matrix_3)
-    
-    def test_inout(self):
-        self.assertEqual(hl.breadth_first_search((0, 5, -5), (0, -5, 5), self.graph_matrix_3), 
-                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), (3, 0, -3), 
-                          (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), (-1, 0, 1), (-2, 1, 1), 
-                          (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), 
-                          (0, -3, 3), (0, -4, 4), (0, -5, 5)])
-    
-    def tearDown(self):
-        self.obj_0.dispose()
-        del self.test_grp_3
-        del self.graph_matrix_3
-    
-    
-# TestDijekstrasAlgorithm --------------------------------------------------- #
-class TestDijekstrasAlgorithm(unittest.TestCase):
-    """
-    Test depends on GraphMatrix object.
-    """
-    def setUp(self):
-        # AttributeError ---------------------------------------------------- #
-        self.obj_0 = Mock()
-        self.obj_0.q = 0
-        self.obj_0.r = 0
-        del self.obj_0.s
-        # test input expected output ---------------------------------------- #
-        self.test_grp_3 = testgrp_generator((0, 0, 0), 5, ( (2, 0, -2, {"movement_cost":0} ), 
-                                                          (1, 1, -2, {"movement_cost":0} ), 
-                                                          (0, 2, -2, {"movement_cost":0} ), 
-                                                          (-1, 3, -2, {"movement_cost":0} ),
-                                                          (-2, 4, -2, {"movement_cost":0} ),
-                                                          (-3, 5, -2, {"movement_cost":0} ),
-                                                          (-4, 6, -2, {"movement_cost":0} ),
-                                                          (-3, 1, 2, {"movement_cost":0} ),
-                                                          (-2, 0, 2, {"movement_cost":0} ),
-                                                          (-1, -1, 2, {"movement_cost":0} ),
-                                                          (0, -2, 2, {"movement_cost":0} ),
-                                                          (1, -3, 2, {"movement_cost":0} ),
-                                                          (2, -4, 2, {"movement_cost":0} ),
-                                                          (3, -5, 2, {"movement_cost":0} )
-                                                          ))
-        self.graph_matrix_3 = hl.GraphMatrix(self.test_grp_3)
-    
-    def test_error(self):
-        with self.assertRaises(TypeError):
-            hl.dijkstras_algorithm((0, 5, "-5"), (0, -5, 5), self.graph_matrix_3)
-        
-        with self.assertRaises(AttributeError):
-            hl.dijkstras_algorithm(self.obj_0, (0, -5, 5), self.graph_matrix_3)
-        
-        with self.assertRaises(ConstraintViolation):
-            hl.dijkstras_algorithm((1, 5, -5), (0, -5, 5), self.graph_matrix_3)
-    
-    def test_inout(self):
-        self.assertEqual(hl.dijkstras_algorithm((0, 5, -5), (0, -5, 5), self.graph_matrix_3),
-                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
-                          (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
-                          (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
-                          (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), (0, -3, 3), (0, -4, 4), 
-                          (0, -5, 5)])
-                         
-    
-    def tearDown(self):
-        self.obj_0.dispose()
-        del self.test_grp_3
-        del self.graph_matrix_3
-    
-    
-# TestAStarAlgorithm -------------------------------------------------------- #
-class TestAStarAlgorithm(unittest.TestCase):
-    """
-    Test depends on GraphMatrix object.
-    """
-    def setUp(self):
-        # AttributeError ---------------------------------------------------- #
-        self.obj_0 = Mock()
-        self.obj_0.q = 0
-        self.obj_0.r = 0
-        del self.obj_0.s
-        # test input expected output ---------------------------------------- #
-        self.test_grp_3 = testgrp_generator((0, 0, 0), 5, ( (2, 0, -2, {"movement_cost":0} ), 
-                                                          (1, 1, -2, {"movement_cost":0} ), 
-                                                          (0, 2, -2, {"movement_cost":0} ), 
-                                                          (-1, 3, -2, {"movement_cost":0} ),
-                                                          (-2, 4, -2, {"movement_cost":0} ),
-                                                          (-3, 5, -2, {"movement_cost":0} ),
-                                                          (-4, 6, -2, {"movement_cost":0} ),
-                                                          (-3, 1, 2, {"movement_cost":0} ),
-                                                          (-2, 0, 2, {"movement_cost":0} ),
-                                                          (-1, -1, 2, {"movement_cost":0} ),
-                                                          (0, -2, 2, {"movement_cost":0} ),
-                                                          (1, -3, 2, {"movement_cost":0} ),
-                                                          (2, -4, 2, {"movement_cost":0} ),
-                                                          (3, -5, 2, {"movement_cost":0} )
-                                                          ))
-        self.graph_matrix_3 = hl.GraphMatrix(self.test_grp_3)
-    
-    def test_error(self):
-        with self.assertRaises(TypeError):
-            hl.a_star_algorithm((0, 5, "-5"), (0, -5, 5), self.graph_matrix_3)
-        
-        with self.assertRaises(AttributeError):
-            hl.a_star_algorithm(self.obj_0, (0, -5, 5), self.graph_matrix_3)
-        
-        with self.assertRaises(ConstraintViolation):
-            hl.a_star_algorithm((1, 5, -5), (0, -5, 5), self.graph_matrix_3)
-    
-    def test_inout(self):
-        self.assertEqual(hl.a_star_algorithm((0, 5, -5), (0, -5, 5), self.graph_matrix_3),
-                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
-                          (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
-                          (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
-                          (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), (0, -3, 3), (0, -4, 4), 
-                          (0, -5, 5)])
-    
-    def tearDown(self):
-        self.obj_0.dispose()
-        del self.test_grp_3
-        del self.graph_matrix_3
     
 
 # run unittests ------------------------------------------------------------- #

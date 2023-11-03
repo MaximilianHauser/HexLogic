@@ -2,10 +2,10 @@
 # HexLogic
 
 
-
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/MaximilianHauser/HexLogic)
 ![Static Badge](https://img.shields.io/badge/python-%3E3.9-blue)
 ![GitHub](https://img.shields.io/github/license/MaximilianHauser/HexLogic)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/hexlogic)
 
 
 
@@ -65,16 +65,16 @@ of each hexagon. Like in the example given below. When using Pygame-CE it is
 recommended to use square images and draw a hexagon on them. An example of a 
 64x64 tile is provided. Currently the package does not support drawing hexagons.
 ```
-      +s \        / -r
-          \  _   /                   A: ( q=0, r=0, s=0 )
+     +s \         / -r
+         \   _   /                   A: ( q=0, r=0, s=0 )
          _ / B \ _                   B: ( q=0, r=-1, s=1 )
        / G \ _ / C \                 C: ( q=1, r=-1, s=0 )
  -q __ \ _ / A \ _ / __ +q           D: ( q=1, r=0, s=-1 )
        / F \ _ / D \                 E: ( q=0, r=1, s=-1 )
        \ _ / E \ _ /                 F: ( q=-1, r=1, s=0 )
            \ _ /                     G: ( q=-1, r=0, s=1 )
-         /      \
-     +r /        \ -s
+        /        \
+    +r /          \ -s
 ```
 Contains all hextile logic, specified as logic handling the relationship 
 between cartesian coordinates and cube coordinates, for the purpose of defining 
@@ -94,12 +94,12 @@ Coordinates in a rectangular cartesian coordinate system.
 **HexCoords(namedtuple("HexCoords", "q r s")):**  
 Coordinates in a three-dimensional cartesian coordinate system, limited by the constraint q + r + s = 0.
 
-**GraphMatrix(tile_grp:set|list):**
+**GraphMatrix(tile_grp:set|list):**  
     Creates a GraphMatrix object, containing a directed, weighted graph, from the 
     objects or coordinates contained in tile_grp, organized in a Dictionary.
     
-Functions:
-----------
+Functions and Methods:
+----------------------
 **float_to_int(num_in:int|float) -> int|float:**  
 Returns an Integer if passed an Integer or if passed a Float with its decimal being zero. Returns a Float if passed a Float, with a non zero decimal.
 
@@ -154,13 +154,25 @@ Draws a line from one hexagon to another, returns a Tuple containing the hexagon
 **dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set, block_var:str=None) -> set:**  
 All cube coordinates within n distance from an Object, factoring in block_var (variable if True blocks object traversability).
 
-**breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, graph_matrix_df:pd.DataFrame) -> list:**  
+**GraphMatrix.update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:**
+Add or update a one-directional entry in the adjacency matrix.
+    
+**GraphMatrix.del_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> None:**
+Delete a one-directional entry in the adjacency matrix. Does not raise an Error or Warning if no entry matching the input exists.
+    
+**GraphMatrix.connected(self, from_coord:object|tuple|HexCoords) -> set:**
+Return all connected coordinates. Returns None, in case of there aren't being any.
+
+**GraphMatrix.get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float:**
+Get the movement cost from one Object or coordinate to another.
+
+**GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:**  
 Algorithm for searching a tree data structure for a node that satisfies a given property.
 
-**dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, graph_matrix_df:pd.DataFrame) -> list:**  
+**GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:**  
 Supports weighted movement cost.
     
-**a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, graph_matrix_df:pd.DataFrame) -> list:**  
+**GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:**  
 Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
 
 
@@ -170,20 +182,62 @@ List of issues to be solved before the package will be released at version 1.0
 * [x] eliminate dependency on NumPy and Pandas, by replacing the interim solution for graph matrix storage with built-in types
 * [ ] add example.py
 * [ ] identify and test for edge cases
-* [ ] add example.py
 * [ ] modify round_container to work for infinitely nested containers
-* [ ] add a set that is automatically updated, containing all coordinates which are linked in GraphMatrix
+* [ ] add a set that is ?automatically? updated, containing all coordinates which are linked in GraphMatrix
 * [ ] write a working testgrp_teardown
-* [ ] replace "block_var" artifacts with movement_cost = 0 -> tile = blocked for "dist_lim_flood_fill"
-* [ ] add pathfinding functions as methods to GraphMatrix?
+* [x] replace "block_var" artifacts with movement_cost = 0 -> tile = blocked for "dist_lim_flood_fill"
+* [x] add pathfinding functions as methods to GraphMatrix
+* [ ] negative movement_cost for blocking movement instead of 0 ?
+* [ ] refactor code to be organized around one class handling all the logic affecting objects in passed container (like observer.py etc.), keep functions only implementation ???
+* [ ] find out why and fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
 
 
 ## References
-redblobgames.com (Amit Patel):
-[Hexagons](https://www.redblobgames.com/grids/hexagons/),
-[Hexagons Implementation Guide](https://www.redblobgames.com/grids/hexagons/implementation.html),
-[Hexagons Generated Code](https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py),
-[Pathfinding](https://www.redblobgames.com/pathfinding/a-star/introduction.html),
-[Pathfinding Implementation Guide](https://www.redblobgames.com/pathfinding/a-star/implementation.html)
+redblobgames.com (Amit Patel):  
+[Hexagons](https://www.redblobgames.com/grids/hexagons/),  
+[Hexagons Implementation Guide](https://www.redblobgames.com/grids/hexagons/implementation.html),  
+[Hexagons Generated Code](https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py),  
+[Pathfinding](https://www.redblobgames.com/pathfinding/a-star/introduction.html),  
+[Pathfinding Implementation Guide](https://www.redblobgames.com/pathfinding/a-star/implementation.html)  
+NumPy Style Guide:  
+[syntax and best practices for docstrings](https://numpydoc.readthedocs.io/en/latest/format.html)  
+
+
+## Other packages on the Python Package Index offering hexagonal grid functionalities:  
+Prior to deciding to make Hexlogic a package available on PyPI, I researched other available 
+implementations to check if it had already been implemented in the way envisioned and on the 
+other hand to learn from other people's work. Below is a list of the packages found which are thematically 
+closest to my own. Check them out! Depending on what you're trying to do some of them might be better 
+suited for your needs.
+
+
+**HexPex**  
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/solbero/hexpex)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/hexpex)
+https://pypi.org/project/hexpex/  
+ - OOP implementation based on single coordinate
+ - cube and axial coordinates, directions (facing up)
+ - distances, neighbors, range, rings, rotation, spiral
+
+**Hexutil**  
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/stephanh42/hexutil)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/hexutil)
+https://pypi.org/project/hexutil/
+ - OOP implementation based on single coordinate
+ - comprehensive implementation of "pointy side up" hexagonal game focused map logic
+ - including pathfinding and field of view
+
+**pygame-pgu**  
+https://pypi.org/project/pygame-pgu/
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/parogers/pgu)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/pygame-pgu)
+ - a COMPREHENSIVE collection of handy modules and scripts for PyGame
+
+**HexGrid**  
+https://pypi.org/project/hexgrid/
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/rosshamish/hexgrid)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/hexgrid)
+ - "Settlers of Catan" - grid, complete with tile, edge and node coordinates
+ - Used by JSettlers2, described in "Thomas, Robert S. 2003. Real-time Decision Making for Adversarial Environments Using a Plan-based Heuristic. PhD thesis, Northwestern University"
 
 

@@ -5,7 +5,7 @@ Created on Sun Oct 15 21:19:20 2023
 @author: Maximilian Hauser
 """
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 from hexlogic import RectCoords as RectCoords
 from hexlogic import HexCoords as HexCoords
@@ -28,7 +28,5 @@ from hexlogic import distance as distance
 from hexlogic import in_range as in_range
 from hexlogic import line_draw as line_draw
 from hexlogic import dist_lim_flood_fill as dist_lim_flood_fill
-from hexlogic import breadth_first_search as breadth_first_search
-from hexlogic import dijkstras_algorithm as dijkstras_algorithm
-from hexlogic import a_star_algorithm as a_star_algorithm
+
 

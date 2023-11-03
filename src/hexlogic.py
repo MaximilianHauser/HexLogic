@@ -162,12 +162,15 @@ a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords,
     
 
 @author: Maximilian Hauser
-@references: redblobgames.com (Amit Patel)
+@references: 
+redblobgames.com (Amit Patel):
 https://www.redblobgames.com/grids/hexagons/
 https://www.redblobgames.com/grids/hexagons/implementation.html
 https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py
 https://www.redblobgames.com/pathfinding/a-star/introduction.html
 https://www.redblobgames.com/pathfinding/a-star/implementation.html
+NumPy Style Guide:
+https://numpydoc.readthedocs.io/en/latest/format.html
 """
 
 
@@ -257,6 +260,40 @@ class GraphMatrix:
         coordinate system (tiles in tilemap). The hexagonal coordinates need to 
         be stored in q, r and s coordinates and they must adhere to the zero 
         constraint.
+        
+    Attributes:
+    -----------
+    matrix_dict : Dictionary
+        Dictionary containing a directed, weighted graph, stored in the following 
+        structure, the keys being qrs-coordinates. 
+        {from : { first_to : movement_cost, second_to : movement_cost}}
+    
+    matrix_coords : Set
+        Set containing all coordinates, connected to another coordinate.
+    
+    Methods:
+    --------
+    update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None
+        Add or update a one-directional entry in the adjacency matrix.
+        
+    del_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> None
+        Delete a one-directional entry in the adjacency matrix. Does not raise an Error or Warning if no entry matching the input exists.
+        
+    connected(self, from_coord:object|tuple|HexCoords) -> set
+        Return all connected coordinates. Returns None, in case of there aren't being any.
+        
+    get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float
+        Get the movement cost from one Object or coordinate to another.
+        
+    breadth_first_search(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list
+        Algorithm for searching a tree data structure for a node that satisfies a given property.
+        
+    dijkstras_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list
+        Algorithm for searching a tree data structure for a node that satisfies a given property. Supports weighted movement cost.
+        
+    a_star_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list
+        Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
+        
         
     Raises:
     -------
@@ -363,6 +400,224 @@ class GraphMatrix:
         
         return movement_cost
     
+    # graph based path finding algorithms --------------------------------------- #
+    def breadth_first_search(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+        """
+        Algorithm for searching a tree data structure for a node that satisfies a 
+        given property. It starts at the tree root and explores all nodes at the 
+        present depth prior to moving on to the nodes at the next depth level. 
+        Currently goal can only be a coordinate.
+        
+        Parameters:
+        -----------
+        start : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being 
+            an Integer or Float. Needs to adhere to zero constraint.
+            
+        goal : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being 
+            an Integer or Float. Needs to adhere to zero constraint.
+        
+        Raises:
+        -------
+        TypeError: 
+            If q, r or s is not an Integer or a Float. If a passed Tuple has
+            too many or too few individual values.
+            
+        AttributeError: 
+            If an Object is passed, but is missing the q, r or s coordinates attributes.
+            
+        ConstraintViolation: 
+            If the q+r+s=0 constraint is violated.
+        
+        Returns:
+        --------
+        path(List): A List containing all tiles from start to goal coordinate.
+        """
+        start = tuple_or_object(start, 3, return_coords_obj=False)
+        goal = tuple_or_object(goal, 3, return_coords_obj=False)
+        
+        frontier = list()
+        frontier.append(start)
+        came_from = dict() # path A->B is stored as came_from[B] == A
+        came_from[start] = None
+
+        while frontier:
+            current = frontier.pop(0)
+            
+            if current == goal:
+                break
+            else:
+                for nbor in neighbors(current):
+                    if nbor not in came_from.keys():
+                        # movement_cost from row to column not 0 ---------------- #
+                        if nbor in self.connected(current):
+                            if self.get_movement_cost(current, nbor) != 0:
+                                frontier.append(nbor)
+                                came_from[nbor] = current
+        
+        # follow the path from goal to start in came_from ----------------------- #
+        current = goal 
+        path = list()
+        while current != start: 
+            path.append(current)
+            current = came_from[current]
+        path.append(start)
+        path.reverse()
+        
+        return path
+
+
+    def dijkstras_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+        """
+        Algorithm for searching a tree data structure for a node that satisfies a 
+        given property. It starts at the tree root and explores all nodes at the 
+        present depth prior to moving on to the nodes at the next depth level. 
+        Supports weighted movement cost. Currently goal can only be a coordinate.
+        
+        Parameters:
+        -----------
+        start : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being 
+            an Integer or Float. Needs to adhere to zero constraint.
+            
+        goal : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being 
+            an Integer or Float. Needs to adhere to zero constraint.
+        
+        Raises:
+        -------
+        TypeError: 
+            If q, r or s is not an Integer or a Float. If a passed Tuple has
+            too many or too few individual values.
+            
+        AttributeError: 
+            If an Object is passed, but is missing the q, r or s coordinates attributes.
+            
+        ConstraintViolation: 
+            If the q+r+s=0 constraint is violated.
+        
+        Returns:
+        --------
+        path(List): A List containing all tiles from start to goal coordinate.
+        """
+        start = tuple_or_object(start, 3, return_coords_obj=False)
+        goal = tuple_or_object(goal, 3, return_coords_obj=False)
+        
+        frontier = list()
+        frontier.append((start, 0))
+        came_from = dict()
+        cost_so_far = dict()
+        came_from[start] = None
+        cost_so_far[start] = 0
+        
+        # while not all tiles have been procesed, pop first tile from list ------ #
+        while frontier:
+            current = frontier.pop(0)
+            
+            # if current qrs_coords equal goal coords, break out of loop -------- #
+            if current[0] == goal:
+                break
+            # else execute loop ------------------------------------------------- #
+            else:
+                for nbor in neighbors(current[0]):
+                    if self.get_movement_cost(current[0], nbor) != 0:
+                        new_cost = cost_so_far[current[0]] + self.get_movement_cost(current[0], nbor)
+                        if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
+                            cost_so_far[nbor] = new_cost
+                            came_from[nbor] = current[0]
+                            frontier.append((nbor, new_cost))
+                            frontier.sort(key= lambda x:x[1] in frontier)
+                        
+        # follow the path from goal to start in came_from ----------------------- #
+        current = goal 
+        path = list()
+        while current != start: 
+            path.append(current)
+            current = came_from[current]
+        path.append(start)
+        path.reverse()
+        
+        return path
+                   
+
+    def a_star_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+        """
+        Modified version of Dijkstra’s Algorithm that is optimized for a single 
+        destination. It prioritizes paths that seem to be leading closer to a goal.
+        
+        Parameters:
+        -----------
+        start : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being 
+            an Integer or Float. Needs to adhere to zero constraint.
+            
+        goal : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being 
+            an Integer or Float. Needs to adhere to zero constraint.
+            
+        Raises:
+        -------
+        TypeError: 
+            If q, r or s is not an Integer or a Float. If a passed Tuple has
+            too many or too few individual values.
+            
+        AttributeError: 
+            If an Object is passed, but is missing the q, r or s coordinates attributes.
+            
+        ConstraintViolation: 
+            If the q+r+s=0 constraint is violated.
+        
+        Returns:
+        --------
+        path(List): A List containing all tiles from start to goal coordinate.
+        """
+        start = tuple_or_object(start, 3, return_coords_obj=False)
+        goal = tuple_or_object(goal, 3, return_coords_obj=False)
+        
+        frontier = list()
+        frontier.append((start, 0))
+        came_from = dict()
+        cost_so_far = dict()
+        came_from[start] = None
+        cost_so_far[start] = 0
+        
+        # while not all tiles have been procesed, pop first tile from list ------ #
+        while frontier:
+            current = frontier.pop(0)
+            
+            # if current qrs_coords equal goal coords, break out of loop -------- #
+            if current[0] == goal:
+                break
+            # else execute loop ------------------------------------------------- #
+            else:
+                for nbor in neighbors(current[0]):
+                    if self.get_movement_cost(current[0], nbor) != 0:
+                        new_cost = cost_so_far[current[0]] + self.get_movement_cost(current[0], nbor)
+                        if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
+                            cost_so_far[nbor] = new_cost
+                            came_from[nbor] = current[0]
+                            priority = new_cost + distance(goal, nbor)
+                            frontier.append((nbor, priority))
+                            frontier.sort(key= lambda x:x[1] in frontier)
+                        
+        # follow the path from goal to start in came_from ----------------------- #
+        current = goal 
+        path = list()
+        while current != start: 
+            path.append(current)
+            current = came_from[current]
+        path.append(start)
+        path.reverse()
+        
+        return path
+               
 
 # helper functions ---------------------------------------------------------- #
 def float_to_int(num_in:int|float) -> int|float:
@@ -1189,7 +1444,7 @@ def line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tup
     
 
 def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set, 
-                        *, block_var:str=None) -> set:
+                        *, movement_var:str="movement_cost") -> set:
     """
     All cube coordinates within n distance from an Object, factoring in block_var 
     (variable if True blocks object traversability).
@@ -1208,9 +1463,10 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
         A container containing Objects in a cube coordinate system (tiles in tilemap).
         They need to adhere to the zero constraint.
         
-    block_var : String, optional
-        Variable name of the variable, that Objects in obj_grp should contain to
-        block consideration as viable tile to traverse.
+    movement_var : String, optional
+        Variable name of the variable, that Objects in obj_grp should contain to, 
+        allow a block of object traversability. The movement is blocked if the 
+        movement cost is 0.
         
     Raises:
     -------
@@ -1247,6 +1503,8 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
         for coord in ["q", "r", "s"]:
             if not hasattr(obj, coord):
                 raise AttributeError(str(obj) + ", is missing the " + str(coord) + " attribute.")
+            if not isinstance(getattr(obj, coord), int or float):
+                raise TypeError(coord, "of obj", obj, "must be either an Integer or Float.")
         
     visited = set()
     visited.add(start)
@@ -1264,7 +1522,7 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
                     for obj in obj_grp:
                             if (obj.q, obj.r, obj.s) == nbor_coords:
                                 nbor_obj = obj
-                    blocked = getattr(nbor_obj, block_var, False)
+                    blocked = getattr(nbor_obj, movement_var, 1) == 0
                     if nbor_coords not in visited:
                         if not blocked:
                             visited.add(nbor_coords)
@@ -1272,241 +1530,4 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
     
     return visited
 
-
-# graph based path finding algorithms --------------------------------------- #
-def breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                         graph_matrix:GraphMatrix) -> list:
-    """
-    Algorithm for searching a tree data structure for a node that satisfies a 
-    given property. It starts at the tree root and explores all nodes at the 
-    present depth prior to moving on to the nodes at the next depth level. 
-    Currently goal can only be a coordinate.
-    
-    Parameters:
-    -----------
-    start : Object | Tuple | HexCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
-        
-    goal : Object | Tuple | HexCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
-        
-    graph_matrix : GraphMatrix
-        Two-dimensional, directed, weighted graph, stored in a GraphMatrix object,
-        which returns the movement cost from one coordinate to an adjacent tile, 
-        otherwise zero.
-    
-    Raises:
-    -------
-    TypeError: 
-        If q, r or s is not an Integer or a Float. If a passed Tuple has
-        too many or too few individual values.
-        
-    AttributeError: 
-        If an Object is passed, but is missing the q, r or s coordinates attributes.
-        
-    ConstraintViolation: 
-        If the q+r+s=0 constraint is violated.
-    
-    Returns:
-    --------
-    path(List): A List containing all tiles from start to goal coordinate.
-    """
-    start = tuple_or_object(start, 3, return_coords_obj=False)
-    goal = tuple_or_object(goal, 3, return_coords_obj=False)
-    
-    frontier = list()
-    frontier.append(start)
-    came_from = dict() # path A->B is stored as came_from[B] == A
-    came_from[start] = None
-
-    while frontier:
-        current = frontier.pop(0)
-        
-        if current == goal:
-            break
-        else:
-            for nbor in neighbors(current):
-                if nbor not in came_from.keys():
-                    # movement_cost from row to column not 0 ---------------- #
-                    if nbor in graph_matrix.connected(current):
-                        if graph_matrix.get_movement_cost(current, nbor) != 0:
-                            frontier.append(nbor)
-                            came_from[nbor] = current
-    
-    # follow the path from goal to start in came_from ----------------------- #
-    current = goal 
-    path = list()
-    while current != start: 
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
-    path.reverse()
-    
-    return path
-
-
-def dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                        graph_matrix:GraphMatrix) -> list:
-    """
-    Algorithm for searching a tree data structure for a node that satisfies a 
-    given property. It starts at the tree root and explores all nodes at the 
-    present depth prior to moving on to the nodes at the next depth level. 
-    Supports weighted movement cost. Currently goal can only be a coordinate.
-    
-    Parameters:
-    -----------
-    start : Object | Tuple | HexCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
-        
-    goal : Object | Tuple | HexCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
-        
-    graph_matrix : GraphMatrix
-        Two-dimensional, directed, weighted graph, stored in a GraphMatrix object,
-        which returns the movement cost from one coordinate to an adjacent tile, 
-        otherwise zero.
-    
-    Raises:
-    -------
-    TypeError: 
-        If q, r or s is not an Integer or a Float. If a passed Tuple has
-        too many or too few individual values.
-        
-    AttributeError: 
-        If an Object is passed, but is missing the q, r or s coordinates attributes.
-        
-    ConstraintViolation: 
-        If the q+r+s=0 constraint is violated.
-    
-    Returns:
-    --------
-    path(List): A List containing all tiles from start to goal coordinate.
-    """
-    start = tuple_or_object(start, 3, return_coords_obj=False)
-    goal = tuple_or_object(goal, 3, return_coords_obj=False)
-    
-    frontier = list()
-    frontier.append((start, 0))
-    came_from = dict()
-    cost_so_far = dict()
-    came_from[start] = None
-    cost_so_far[start] = 0
-    
-    # while not all tiles have been procesed, pop first tile from list ------ #
-    while frontier:
-        current = frontier.pop(0)
-        
-        # if current qrs_coords equal goal coords, break out of loop -------- #
-        if current[0] == goal:
-            break
-        # else execute loop ------------------------------------------------- #
-        else:
-            for nbor in neighbors(current[0]):
-                if graph_matrix.get_movement_cost(current[0], nbor) != 0:
-                    new_cost = cost_so_far[current[0]] + graph_matrix.get_movement_cost(current[0], nbor)
-                    if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
-                        cost_so_far[nbor] = new_cost
-                        came_from[nbor] = current[0]
-                        frontier.append((nbor, new_cost))
-                        frontier.sort(key= lambda x:x[1] in frontier)
-                    
-    # follow the path from goal to start in came_from ----------------------- #
-    current = goal 
-    path = list()
-    while current != start: 
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
-    path.reverse()
-    
-    return path
-               
-
-def a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                     graph_matrix:GraphMatrix) -> list:
-    """
-    Modified version of Dijkstra’s Algorithm that is optimized for a single 
-    destination. It prioritizes paths that seem to be leading closer to a goal.
-    
-    Parameters:
-    -----------
-    start : Object | Tuple | HexCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
-        
-    goal : Object | Tuple | HexCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
-        
-    graph_matrix : GraphMatrix
-        Two-dimensional, directed, weighted graph, stored in a GraphMatrix object,
-        which returns the movement cost from one coordinate to an adjacent tile, 
-        otherwise zero.
-        
-    Raises:
-    -------
-    TypeError: 
-        If q, r or s is not an Integer or a Float. If a passed Tuple has
-        too many or too few individual values.
-        
-    AttributeError: 
-        If an Object is passed, but is missing the q, r or s coordinates attributes.
-        
-    ConstraintViolation: 
-        If the q+r+s=0 constraint is violated.
-    
-    Returns:
-    --------
-    path(List): A List containing all tiles from start to goal coordinate.
-    """
-    start = tuple_or_object(start, 3, return_coords_obj=False)
-    goal = tuple_or_object(goal, 3, return_coords_obj=False)
-    
-    frontier = list()
-    frontier.append((start, 0))
-    came_from = dict()
-    cost_so_far = dict()
-    came_from[start] = None
-    cost_so_far[start] = 0
-    
-    # while not all tiles have been procesed, pop first tile from list ------ #
-    while frontier:
-        current = frontier.pop(0)
-        
-        # if current qrs_coords equal goal coords, break out of loop -------- #
-        if current[0] == goal:
-            break
-        # else execute loop ------------------------------------------------- #
-        else:
-            for nbor in neighbors(current[0]):
-                if graph_matrix.get_movement_cost(current[0], nbor) != 0:
-                    new_cost = cost_so_far[current[0]] + graph_matrix.get_movement_cost(current[0], nbor)
-                    if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
-                        cost_so_far[nbor] = new_cost
-                        came_from[nbor] = current[0]
-                        priority = new_cost + distance(goal, nbor)
-                        frontier.append((nbor, priority))
-                        frontier.sort(key= lambda x:x[1] in frontier)
-                    
-    # follow the path from goal to start in came_from ----------------------- #
-    current = goal 
-    path = list()
-    while current != start: 
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
-    path.reverse()
-    
-    return path
-        
 

@@ -14,7 +14,7 @@ with open("README.md", "r") as fh:
 
 # setup --------------------------------------------------------------------- #
 setup(name="hexlogic", 
-      version="0.0.1", 
+      version="0.0.2", 
       description="HexLogic aims to be a Python package, without dependencies outside of the built-in library, providing fully-documented functions to deal with the relations between objects on a hexagon tiled grid. Including conversion from „hexagonal“ to „pixel“ coordinates and pathfinding with varying movement cost. As well as various operations like line-drawing.",
       py_modules=["hexlogic"],
       package_dir={"": "src"},
@@ -24,10 +24,8 @@ setup(name="hexlogic",
     "Operating System :: OS Independent"
     ],
       long_description=long_description,
-      long_description_content_type="test/markdown",
+      long_description_content_type="markdown",
       url="https://github.com/MaximilianHauser/HexLogic",
-      download_url="https://pypi.org/project/hexlogic/",
       author="Maximilian Hauser",
-      author_email="maxi.hauser@protonmail.com",
-      license="MIT"
+      author_email="maxi.hauser@protonmail.com"
       )
