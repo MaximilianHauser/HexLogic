@@ -151,8 +151,8 @@ Returns a Set containing the cube coordinates of every hexagon in distance n fro
 **line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tuple:**  
 Draws a line from one hexagon to another, returns a Tuple containing the hexagons with the center closest to the line.
     
-**dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set, block_var:str=None) -> set:**  
-All cube coordinates within n distance from an Object, factoring in block_var (variable if True blocks object traversability).
+**dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set, movement_var:str=None) -> set:**  
+All cube coordinates within n distance from an Object, factoring in movement_var (variable if 0 blocks object traversability).
 
 **GraphMatrix.update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:**
 Add or update a one-directional entry in the adjacency matrix.
