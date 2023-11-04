@@ -146,19 +146,26 @@ dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set,
     All cube coordinates within n distance from an Object, factoring in block_var 
     (variable if True blocks object traversability).
 
-breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                         graph_matrix:GraphMatrix) -> list:
-    Algorithm for searching a tree data structure for a node that satisfies a 
-    given property.
+GraphMatrix.update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:
+    Add or update a one-directional entry in the adjacency matrix.
+    
+GraphMatrix.del_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> None:
+    Delete a one-directional entry in the adjacency matrix. Does not raise an Error or Warning if no entry matching the input exists.
+    
+GraphMatrix.connected(self, from_coord:object|tuple|HexCoords) -> set:
+    Return all connected coordinates. Returns None, in case of there aren't being any.
 
-dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                        graph_matrix:GraphMatrix) -> list:
+GraphMatrix.get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float:
+    Get the movement cost from one Object or coordinate to another.
+
+GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+    Algorithm for searching a tree data structure for a node that satisfies a given property.
+
+GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
     Supports weighted movement cost.
     
-a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                     graph_matrix:GraphMatrix) -> list:
-    Modified version of Dijkstra’s Algorithm that is optimized for a single 
-    destination. It prioritizes paths that seem to be leading closer to a goal.
+GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+    Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
     
 
 @author: Maximilian Hauser
