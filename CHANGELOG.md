@@ -1,6 +1,20 @@
+<!-- id='changelog-0.0.3'-->
+# 0.0.3 — 2023-11-XX
 
-<a id='changelog-0.0.2'></a>
-# 0.0.2 — 2023-11-XX
+## Added
+
+- added a mechanic initially adding all connected coordinates to a Set GraphMatrix.matrix_coords
+
+## Changed
+
+- switched blocked movement for GraphMatrix and methods from 0 to negative values and updated unittests
+
+## Fixed
+
+- fixed the shields being displayed after the link to the pypi page for pygame-pgu and HexGrid in the readme
+
+<!-- id='changelog-0.0.2'-->
+# 0.0.2 — 2023-11-03
 
 ## Changed
 
@@ -11,7 +25,7 @@
 - adapted unittests to changes
 
 
-<a id='changelog-0.0.1'></a>
+<!-- id='changelog-0.0.1'-->
 # 0.0.1 — 2023-10-25
 
 ## Added

@@ -38,7 +38,6 @@ def testgrp_generator(center_obj:object|tuple|HexCoords, radius:int, override_co
         obj.q = coords[0]
         obj.r = coords[1]
         obj.s = coords[2]
-        obj.block = False
         obj.movement_cost = 1
         obj_grp.append(obj)
     # generate list as basis to modify obj_grp ------------------------------ #
@@ -75,11 +74,11 @@ class TestTestgrpGenerator(unittest.TestCase):
     for simplicity reasons. testgrp_teardown NOT WORKING
     """
     def setUp(self):
-        self.test_grp = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"block":True} ), (-1, 1, 0, {"s":"0"} )))
-        self.control = {(-1, 0, 1, False), (0, -1, 1, False), (1, 0, -1, False), (0, 0, 0, False), (-1, 1, "0", False), (1, -1, 0, True), (0, 1, -1, False)}
+        self.test_grp = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"movement_cost":-1} ), (-1, 1, 0, {"s":"0"} )))
+        self.control = {(-1, 0, 1, 1), (0, -1, 1, 1), (1, 0, -1, 1), (0, 0, 0, 1), (-1, 1, "0", 1), (1, -1, 0, -1), (0, 1, -1, 1)}
     
     def test_attributes(self):
-        self.test_set = {(obj.q, obj.r, obj.s, obj.block) for obj in self.test_grp}
+        self.test_set = {(obj.q, obj.r, obj.s, obj.movement_cost) for obj in self.test_grp}
         self.assertEqual(self.test_set, self.control)
     
     def tearDown(self):
@@ -174,20 +173,20 @@ class TestGraphMatrix(unittest.TestCase):
         self.test_matrix_3 = hl.GraphMatrix(self.test_grp_3)
         
         # test input expected output pathfinding ---------------------------- #
-        self.test_grp_4 = testgrp_generator((0, 0, 0), 5, ( (2, 0, -2, {"movement_cost":0} ), 
-                                                          (1, 1, -2, {"movement_cost":0} ), 
-                                                          (0, 2, -2, {"movement_cost":0} ), 
-                                                          (-1, 3, -2, {"movement_cost":0} ),
-                                                          (-2, 4, -2, {"movement_cost":0} ),
-                                                          (-3, 5, -2, {"movement_cost":0} ),
-                                                          (-4, 6, -2, {"movement_cost":0} ),
-                                                          (-3, 1, 2, {"movement_cost":0} ),
-                                                          (-2, 0, 2, {"movement_cost":0} ),
-                                                          (-1, -1, 2, {"movement_cost":0} ),
-                                                          (0, -2, 2, {"movement_cost":0} ),
-                                                          (1, -3, 2, {"movement_cost":0} ),
-                                                          (2, -4, 2, {"movement_cost":0} ),
-                                                          (3, -5, 2, {"movement_cost":0} )
+        self.test_grp_4 = testgrp_generator((0, 0, 0), 5, ( (2, 0, -2, {"movement_cost":-1} ), 
+                                                          (1, 1, -2, {"movement_cost":-1} ), 
+                                                          (0, 2, -2, {"movement_cost":-1} ), 
+                                                          (-1, 3, -2, {"movement_cost":-1} ),
+                                                          (-2, 4, -2, {"movement_cost":-1} ),
+                                                          (-3, 5, -2, {"movement_cost":-1} ),
+                                                          (-4, 6, -2, {"movement_cost":-1} ),
+                                                          (-3, 1, 2, {"movement_cost":-1} ),
+                                                          (-2, 0, 2, {"movement_cost":-1} ),
+                                                          (-1, -1, 2, {"movement_cost":-1} ),
+                                                          (0, -2, 2, {"movement_cost":-1} ),
+                                                          (1, -3, 2, {"movement_cost":-1} ),
+                                                          (2, -4, 2, {"movement_cost":-1} ),
+                                                          (3, -5, 2, {"movement_cost":-1} )
                                                           ))
     
         self.test_matrix_4 = hl.GraphMatrix(self.test_grp_4)

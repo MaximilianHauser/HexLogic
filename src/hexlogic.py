@@ -70,7 +70,8 @@ HexCoords(namedtuple("HexCoords", "q r s")):
     
 GraphMatrix(tile_grp:set|list):
     Creates a GraphMatrix Object, containing a directed, weighted graph, from the 
-    Objects or coordinates contained in tile_grp, organized in a Dictionary.
+    Objects or coordinates contained in tile_grp, organized in a Dictionary, as 
+    well as a Set containing all connected coordinates.
     
     
 Functions:
@@ -350,6 +351,11 @@ class GraphMatrix:
                 self.matrix_dict[edge[1]].update({edge[0]:edge[2]})
             else:
                 self.matrix_dict.update({edge[1]:{edge[0]:edge[2]}})
+            # add edge coordinats to set connected coordinates -------------- #
+            if edge[2] >= 0:
+                self.matrix_coords.add(edge[0])
+            if edge[3] >= 0:
+                self.matrix_coords.add(edge[1])
                                       
         
     def update_entry(self, from_coord:object|tuple|HexCoords, 
@@ -403,7 +409,7 @@ class GraphMatrix:
         try:
             movement_cost = self.matrix_dict[from_c][to_c]
         except KeyError:
-            movement_cost = 0
+            movement_cost = -1
         
         return movement_cost
     
@@ -461,7 +467,7 @@ class GraphMatrix:
                     if nbor not in came_from.keys():
                         # movement_cost from row to column not 0 ---------------- #
                         if nbor in self.connected(current):
-                            if self.get_movement_cost(current, nbor) != 0:
+                            if self.get_movement_cost(current, nbor) >= 0:
                                 frontier.append(nbor)
                                 came_from[nbor] = current
         
@@ -532,7 +538,7 @@ class GraphMatrix:
             # else execute loop ------------------------------------------------- #
             else:
                 for nbor in neighbors(current[0]):
-                    if self.get_movement_cost(current[0], nbor) != 0:
+                    if self.get_movement_cost(current[0], nbor) >= 0:
                         new_cost = cost_so_far[current[0]] + self.get_movement_cost(current[0], nbor)
                         if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
                             cost_so_far[nbor] = new_cost
@@ -595,17 +601,17 @@ class GraphMatrix:
         came_from[start] = None
         cost_so_far[start] = 0
         
-        # while not all tiles have been procesed, pop first tile from list ------ #
+        # while not all tiles have been procesed, pop first tile from list -- #
         while frontier:
             current = frontier.pop(0)
             
-            # if current qrs_coords equal goal coords, break out of loop -------- #
+            # if current qrs_coords equal goal coords, break out of loop ---- #
             if current[0] == goal:
                 break
-            # else execute loop ------------------------------------------------- #
+            # else execute loop --------------------------------------------- #
             else:
                 for nbor in neighbors(current[0]):
-                    if self.get_movement_cost(current[0], nbor) != 0:
+                    if self.get_movement_cost(current[0], nbor) >= 0:
                         new_cost = cost_so_far[current[0]] + self.get_movement_cost(current[0], nbor)
                         if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
                             cost_so_far[nbor] = new_cost
@@ -614,7 +620,7 @@ class GraphMatrix:
                             frontier.append((nbor, priority))
                             frontier.sort(key= lambda x:x[1] in frontier)
                         
-        # follow the path from goal to start in came_from ----------------------- #
+        # follow the path from goal to start in came_from ------------------- #
         current = goal 
         path = list()
         while current != start: 

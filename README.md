@@ -183,21 +183,25 @@ List of issues to be solved before the package will be released at version 1.0
 * [ ] add example.py
 * [ ] identify and test for edge cases
 * [ ] modify round_container to work for infinitely nested containers
-* [ ] add a set that is ?automatically? updated, containing all coordinates which are linked in GraphMatrix
+* [x] add a set ~~that is ?automatically? updated~~, containing all coordinates which are linked in GraphMatrix
 * [ ] write a working testgrp_teardown
 * [x] replace "block_var" artifacts with movement_cost = 0 -> tile = blocked for "dist_lim_flood_fill"
 * [x] add pathfinding functions as methods to GraphMatrix
-* [ ] negative movement_cost for blocking movement instead of 0 ?
+* [x] negative movement_cost for blocking movement instead of 0 ?
 * [ ] refactor code to be organized around one class handling all the logic affecting objects in passed container (like observer.py etc.), keep functions only implementation ???
 * [ ] find out why and fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
+* [ ] add a raise error, if a goal or start is passed to pathfinding, which is inaccessible (has negative movement_cost)
+* [ ] add a "if not connected functionality" to pathfinding algorithms
+* [ ] update TestTestgrpGenerator unittest, block_var to movement_cost
+* [ ] add a mechanic to GraphMatrix methods del_entry and update_entry that update GraphMatrix.matrix_coords
 
 
 ## References
 redblobgames.com (Amit Patel):  
-[Hexagons](https://www.redblobgames.com/grids/hexagons/),  
-[Hexagons Implementation Guide](https://www.redblobgames.com/grids/hexagons/implementation.html),  
-[Hexagons Generated Code](https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py),  
-[Pathfinding](https://www.redblobgames.com/pathfinding/a-star/introduction.html),  
+[Hexagons](https://www.redblobgames.com/grids/hexagons/)  
+[Hexagons Implementation Guide](https://www.redblobgames.com/grids/hexagons/implementation.html)  
+[Hexagons Generated Code](https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py)  
+[Pathfinding](https://www.redblobgames.com/pathfinding/a-star/introduction.html)  
 [Pathfinding Implementation Guide](https://www.redblobgames.com/pathfinding/a-star/implementation.html)  
 NumPy Style Guide:  
 [syntax and best practices for docstrings](https://numpydoc.readthedocs.io/en/latest/format.html)  
@@ -228,15 +232,15 @@ https://pypi.org/project/hexutil/
  - including pathfinding and field of view
 
 **pygame-pgu**  
-https://pypi.org/project/pygame-pgu/
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/parogers/pgu)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/pygame-pgu)
+https://pypi.org/project/pygame-pgu/
  - a COMPREHENSIVE collection of handy modules and scripts for PyGame
 
 **HexGrid**  
-https://pypi.org/project/hexgrid/
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/rosshamish/hexgrid)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hexgrid)
+https://pypi.org/project/hexgrid/
  - "Settlers of Catan" - grid, complete with tile, edge and node coordinates
  - Used by JSettlers2, described in "Thomas, Robert S. 2003. Real-time Decision Making for Adversarial Environments Using a Plan-based Heuristic. PhD thesis, Northwestern University"
 
