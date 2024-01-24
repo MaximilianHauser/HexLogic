@@ -1,17 +1,21 @@
 <!-- id='changelog-0.0.3'-->
-# 0.0.3 — 2023-11-XX
+# 0.0.3 — 2024-01-25
 
 ## Added
 
 - added a mechanic initially adding all connected coordinates to a Set GraphMatrix.matrix_coords
+- added List and Dictionary as return types for functions offering optional boolean choice to return RectCoords or HexCoords, selection is now based on entering the desired return data type as a String, the options being: "List", "Dict", "Tuple", "Coords" (for RectCoords or HexCoords, depending on returned length)
+- added 64_px_example_tilemask.png
 
 ## Changed
 
 - switched blocked movement for GraphMatrix and methods from 0 to negative values and updated unittests
+- switched method of parent directory import of hexlogic to pathlib for unittests
 
 ## Fixed
 
-- fixed the shields being displayed after the link to the pypi page for pygame-pgu and HexGrid in the readme
+- fixed the shields being displayed after the link to the PyPi page for pygame-pgu and HexGrid in the readme
+- spelling in hexlogic.py
 
 <!-- id='changelog-0.0.2'-->
 # 0.0.2 — 2023-11-03

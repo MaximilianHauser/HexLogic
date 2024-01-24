@@ -60,10 +60,11 @@ the following features:
 These functions assume you're using objects to represent tiles, units, items, 
 etc on a map that is made up of hexagonal shaped tiles, with a flat side as top.
 It furthermore assumes you're using a 3-dimensional cartesian coordinate system,
-that assigns the coordinates along axis paralled to the orientation of the sides
+that assigns the coordinates along axis parallel to the orientation of the sides
 of each hexagon. Like in the example given below. When using Pygame-CE it is 
 recommended to use square images and draw a hexagon on them. An example of a 
-64x64 tile is provided. Currently the package does not support drawing hexagons.
+64x64 tile is provided, it's intended to be used with the transparency colorcode 
+set to (255, 0, 255). Currently the package does not support drawing hexagons.
 ```
      +s \         / -r
          \   _   /                   A: ( q=0, r=0, s=0 )
@@ -192,8 +193,10 @@ List of issues to be solved before the package will be released at version 1.0
 * [ ] find out why and fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
 * [ ] add a raise error, if a goal or start is passed to pathfinding, which is inaccessible (has negative movement_cost)
 * [ ] add a "if not connected functionality" to pathfinding algorithms
-* [ ] update TestTestgrpGenerator unittest, block_var to movement_cost
+* [x] update TestTestgrpGenerator unittest, block_var to movement_cost
 * [ ] add a mechanic to GraphMatrix methods del_entry and update_entry that update GraphMatrix.matrix_coords
+* [x] add List and Dictionary as a return option for functions, which offered only Tuple and RectCoords/HexCoords
+* [ ] update unittests to test for dictionary and list outputs
 
 
 ## References

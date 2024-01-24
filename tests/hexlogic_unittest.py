@@ -8,12 +8,15 @@ Created on Sun Oct 15 14:48:51 2023
 # import section ------------------------------------------------------------ #
 # add parent directory ------------------------------------------------------ #
 import sys
-sys.path.append("..")
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 # imports from parent directory --------------------------------------------- #
 from src import hexlogic as hl
 from src.hexlogic import RectCoords as RectCoords
 from src.hexlogic import HexCoords as HexCoords
 from src.hexlogic import ConstraintViolation as ConstraintViolation
+
 # built-in libraries -------------------------------------------------------- #
 import unittest
 from unittest.mock import Mock
@@ -60,10 +63,9 @@ def testgrp_generator(center_obj:object|tuple|HexCoords, radius:int, override_co
 
 def testgrp_teardown(test_grp:list) -> None:
     """
-    NOT WORKING Clean dispose of the Mock objects in test_grp and test_grp. NOT WORKING
+    Clean dispose of the Mock objects in test_grp.
     """
-    for obj in test_grp:
-        obj.dispose()
+    test_grp.clear()
     del test_grp
 
 
@@ -71,7 +73,7 @@ def testgrp_teardown(test_grp:list) -> None:
 class TestTestgrpGenerator(unittest.TestCase):
     """
     Includes a test of testgrp_teardown in the tearDown section of the unittest 
-    for simplicity reasons. testgrp_teardown NOT WORKING
+    for simplicity reasons.
     """
     def setUp(self):
         self.test_grp = testgrp_generator((0, 0, 0), 1, ((1, -1, 0, {"movement_cost":-1} ), (-1, 1, 0, {"s":"0"} )))
@@ -85,7 +87,7 @@ class TestTestgrpGenerator(unittest.TestCase):
         testgrp_teardown(self.test_grp)
         del self.control
         del self.test_set
-
+    
 
 # Test RectCoords ----------------------------------------------------------- #
 class TestRectCoords(unittest.TestCase):
@@ -258,11 +260,11 @@ class TestGraphMatrix(unittest.TestCase):
                           (0, -5, 5)])
     
     def tearDown(self):
-        del self.test_grp_0
-        del self.test_grp_1
-        del self.test_grp_2
-        del self.test_grp_3
-        del self.test_grp_4
+        testgrp_teardown(self.test_grp_0)
+        testgrp_teardown(self.test_grp_1)
+        testgrp_teardown(self.test_grp_2)
+        testgrp_teardown(self.test_grp_3)
+        testgrp_teardown(self.test_grp_4)
         
 
 # Test FloatOrInt ----------------------------------------------------------- #
@@ -310,33 +312,33 @@ class TestTupleOrObject(unittest.TestCase):
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            hl.tuple_or_object(self.obj_1, 3)
-            hl.tuple_or_object((1, 0, -1), 2)
-            hl.tuple_or_object(2, 2)
+            hl.container_or_object(self.obj_1, 3)
+            hl.container_or_object((1, 0, -1), 2)
+            hl.container_or_object(2, 2)
         with self.assertRaises(AttributeError):
-            hl.tuple_or_object(self.obj_1, 2)
+            hl.container_or_object(self.obj_1, 2)
         with self.assertRaises(hl.ConstraintViolation):
-            hl.tuple_or_object(hl.HexCoords(1, 2, 3), 3)
+            hl.container_or_object(hl.HexCoords(1, 2, 3), 3)
         
     def test_inout(self):
         # Object 2dim as input ---------------------------------------------- #
-        self.assertEqual(hl.tuple_or_object(self.obj_0, 2), (1, 1))
-        self.assertEqual(hl.tuple_or_object(self.obj_0, 2, return_coords_obj=True), hl.RectCoords(1, 1))
+        self.assertEqual(hl.container_or_object(self.obj_0, 2), (1, 1))
+        self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="Coords"), hl.RectCoords(1, 1))
         # Object 3dim as input ---------------------------------------------- #
-        self.assertEqual(hl.tuple_or_object(self.obj_0, 3), (2, -2, 0))
-        self.assertEqual(hl.tuple_or_object(self.obj_0, 3, return_coords_obj=True), hl.HexCoords(2, -2, 0))
+        self.assertEqual(hl.container_or_object(self.obj_0, 3), (2, -2, 0))
+        self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="Coords"), hl.HexCoords(2, -2, 0))
         # Tuple 2dim as input ----------------------------------------------- #
-        self.assertEqual(hl.tuple_or_object((2, 3), 2), (2, 3))
-        self.assertEqual(hl.tuple_or_object((2, 3), 2, return_coords_obj=True), hl.RectCoords(2, 3))
+        self.assertEqual(hl.container_or_object((2, 3), 2), (2, 3))
+        self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="Coords"), hl.RectCoords(2, 3))
         # Tuple 3dim as input ----------------------------------------------- #
-        self.assertEqual(hl.tuple_or_object((3, 0, -3), 3), (3, 0, -3))
-        self.assertEqual(hl.tuple_or_object((3, 0, -3), 3, return_coords_obj=True), hl.HexCoords(3, 0, -3))
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3), (3, 0, -3))
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Coords"), hl.HexCoords(3, 0, -3))
         # RectCoords as input ----------------------------------------------- #
-        self.assertEqual(hl.tuple_or_object(hl.RectCoords(2, 3), 2), (2, 3))
-        self.assertEqual(hl.tuple_or_object(hl.RectCoords(2, 3), 2, return_coords_obj=True), hl.RectCoords(2, 3))
+        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2), (2, 3))
+        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="Coords"), hl.RectCoords(2, 3))
         # HexCoords as input ------------------------------------------------ #
-        self.assertEqual(hl.tuple_or_object(hl.HexCoords(3, 0, -3), 3), (3, 0, -3))
-        self.assertEqual(hl.tuple_or_object(hl.HexCoords(3, 0, -3), 3, return_coords_obj=True), hl.HexCoords(3, 0, -3))
+        self.assertEqual(hl.container_or_object(hl.HexCoords(3, 0, -3), 3), (3, 0, -3))
+        self.assertEqual(hl.container_or_object(hl.HexCoords(3, 0, -3), 3, return_obj_type="Coords"), hl.HexCoords(3, 0, -3))
         
     def tearDown(self):
         self.obj_0.dispose()
@@ -459,31 +461,31 @@ class TestCubeLinint(unittest.TestCase):
     def test_inout(self):
         # Tuple and Tuple --------------------------------------------------- #
         self.assertEqual(hl.cube_linint((-2, 0, 2), (2, 0, -2), 0.5), (0, 0, 0))
-        self.assertEqual(hl.cube_linint((0, -1, 1), (0, 1, -1), 0.5, return_coords_obj=True), HexCoords(0, 0, 0))
+        self.assertEqual(hl.cube_linint((0, -1, 1), (0, 1, -1), 0.5, return_obj_type="Coords"), HexCoords(0, 0, 0))
         # Tuple and HexCoords ----------------------------------------------- #
         self.assertEqual(hl.cube_linint((2, -1, -1), HexCoords(-1, 2, -1), 1), (-1, 2, -1))
-        self.assertEqual(hl.cube_linint((-2, 2, 0), HexCoords(0, 2, -2), 0.5, return_coords_obj=True), HexCoords(-1, 2, -1))
+        self.assertEqual(hl.cube_linint((-2, 2, 0), HexCoords(0, 2, -2), 0.5, return_obj_type="Coords"), HexCoords(-1, 2, -1))
         # Tuple and Object -------------------------------------------------- #
         self.assertEqual(hl.cube_linint((0, 0, 0), self.obj_0, 0.5), (1, -1, 0))
-        self.assertEqual(hl.cube_linint((-1, 1, 0), self.obj_1, 0.5, return_coords_obj=True), HexCoords(-1, 0, 1))
+        self.assertEqual(hl.cube_linint((-1, 1, 0), self.obj_1, 0.5, return_obj_type="Coords"), HexCoords(-1, 0, 1))
         # HexCoords and Tuple ----------------------------------------------- #
         self.assertEqual(hl.cube_linint(HexCoords(0, 2, -2), (0, 0, 0), 0.5), (0, 1, -1))
-        self.assertEqual(hl.cube_linint(HexCoords(0, 1, -1), (2, -1, -1), 0.5, return_coords_obj=True), HexCoords(1, 0, -1))
+        self.assertEqual(hl.cube_linint(HexCoords(0, 1, -1), (2, -1, -1), 0.5, return_obj_type="Coords"), HexCoords(1, 0, -1))
         # HexCoords and HexCoords ------------------------------------------- #
         self.assertEqual(hl.cube_linint(HexCoords(-2, 2, 0), HexCoords(0, -2, 2), 0.5), (-1, 0, 1))
-        self.assertEqual(hl.cube_linint(HexCoords(-1, -1, 2), HexCoords(1, 1, -2), 0.5, return_coords_obj=True), HexCoords(0, 0, 0))
+        self.assertEqual(hl.cube_linint(HexCoords(-1, -1, 2), HexCoords(1, 1, -2), 0.5, return_obj_type="Coords"), HexCoords(0, 0, 0))
         # Hex Coords and Object --------------------------------------------- #
         self.assertEqual(hl.cube_linint(HexCoords(-2, 0, 2), self.obj_4, 0.25), (-1, 0, 1))
-        self.assertEqual(hl.cube_linint(HexCoords(1, -2, 1), self.obj_5, 1, return_coords_obj=True), HexCoords(2, -3, 1))
+        self.assertEqual(hl.cube_linint(HexCoords(1, -2, 1), self.obj_5, 1, return_obj_type="Coords"), HexCoords(2, -3, 1))
         # Object and Tuple -------------------------------------------------- #
         self.assertEqual(hl.cube_linint(self.obj_6, (3, -3, 0), 0.75), (2, -2, 0))
-        self.assertEqual(hl.cube_linint(self.obj_7, (2, -3, 1), 0.25, return_coords_obj=True), HexCoords(-1, 0, 1))
+        self.assertEqual(hl.cube_linint(self.obj_7, (2, -3, 1), 0.25, return_obj_type="Coords"), HexCoords(-1, 0, 1))
         # Object and Hexcoords ---------------------------------------------- #
         self.assertEqual(hl.cube_linint(self.obj_8, HexCoords(3, -3, 0), 0.5), (2, -3, 1))
-        self.assertEqual(hl.cube_linint(self.obj_9, HexCoords(0, -3, 3), 0.5, return_coords_obj=True), HexCoords(0, -2, 2))
+        self.assertEqual(hl.cube_linint(self.obj_9, HexCoords(0, -3, 3), 0.5, return_obj_type="Coords"), HexCoords(0, -2, 2))
         # Object and Object ------------------------------------------------- #
         self.assertEqual(hl.cube_linint(self.obj_10, self.obj_8, 0.75), (1, -2, 1))
-        self.assertEqual(hl.cube_linint(self.obj_5, self.obj_7, 0.5, return_coords_obj=True), HexCoords(0, -1, 1))
+        self.assertEqual(hl.cube_linint(self.obj_5, self.obj_7, 0.5, return_obj_type="Coords"), HexCoords(0, -1, 1))
         
     def tearDown(self):
         self.obj_0.dispose()
@@ -527,14 +529,14 @@ class TestRoundHex(unittest.TestCase):
             hl.round_hex(hl.HexCoords("2", 0, -2))
         
         with self.assertRaises(hl.ConstraintViolation):
-            hl.round_hex((2, 2, 3), return_coords_obj=True)
-            hl.round_hex(hl.HexCoords(2, 2, 3), return_coords_obj=True)
+            hl.round_hex((2, 2, 3), return_obj_type="Coords")
+            hl.round_hex(hl.HexCoords(2, 2, 3), return_obj_type="Coords")
     
     def test_inout(self):
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3)), (1, 3, -4))
-        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_coords_obj=True), hl.HexCoords(1, 3, -4))
+        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="Coords"), hl.HexCoords(1, 3, -4))
         self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7)), hl.HexCoords(1, 2, -3))
-        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_coords_obj=True), hl.HexCoords(1, 2, -3))
+        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="Coords"), hl.HexCoords(1, 2, -3))
 
 
 # TestGetxy ----------------------------------------------------------------- #  
@@ -560,15 +562,15 @@ class TestGetxy(unittest.TestCase):
     def test_error(self):
         with self.assertRaises(TypeError):
             hl.get_xy(self.obj_0)
-            hl.get_xy(self.obj_0, return_coords_obj=True)
+            hl.get_xy(self.obj_0, return_obj_type="Coords")
         
         with self.assertRaises(AttributeError):
             hl.get_xy(self.obj_1)
-            hl.get_xy(self.obj_1, return_coords_obj=True)
+            hl.get_xy(self.obj_1, return_obj_type="Coords")
     
     def test_inout(self):
         self.assertEqual(hl.get_xy(self.obj_2), (1, 2))
-        self.assertEqual(hl.get_xy(self.obj_3, return_coords_obj=True), RectCoords(3, 4))
+        self.assertEqual(hl.get_xy(self.obj_3, return_obj_type="Coords"), RectCoords(3, 4))
     
     def tearDown(self):
         self.obj_0.dispose()
@@ -630,7 +632,7 @@ class TestGetqrs(unittest.TestCase):
     
     def test_inout(self):
         self.assertEqual(hl.get_qrs(self.obj_0), (1, 1, -2))
-        self.assertEqual(hl.get_qrs(self.obj_0, return_coords_obj=True), HexCoords(1, 1, -2))
+        self.assertEqual(hl.get_qrs(self.obj_0, return_obj_type="Coords"), HexCoords(1, 1, -2))
         
     def tearDown(self):
         self.obj_0.dispose()
@@ -698,11 +700,11 @@ class TestHexToPixel(unittest.TestCase):
     
     def test_inout(self):
         self.assertEqual(hl.hex_to_pixel((-1, -1, 2)), (-48, -96))
-        self.assertEqual(hl.hex_to_pixel((-2, 1, 1), return_coords_obj=True), RectCoords(-96, 0))
+        self.assertEqual(hl.hex_to_pixel((-2, 1, 1), return_obj_type="Coords"), RectCoords(-96, 0))
         self.assertEqual(hl.hex_to_pixel(HexCoords(2, -3, 1)), (96, -128))
-        self.assertEqual(hl.hex_to_pixel(HexCoords(-2, 2, 0), return_coords_obj=True), RectCoords(-96, 64))
+        self.assertEqual(hl.hex_to_pixel(HexCoords(-2, 2, 0), return_obj_type="Coords"), RectCoords(-96, 64))
         self.assertEqual(hl.hex_to_pixel(self.obj_2), (144, -96))
-        self.assertEqual(hl.hex_to_pixel(self.obj_3, return_coords_obj=True), RectCoords(96, 0))
+        self.assertEqual(hl.hex_to_pixel(self.obj_3, return_obj_type="Coords"), RectCoords(96, 0))
     
     def tearDown(self):
         self.obj_0.dispose()
@@ -739,11 +741,11 @@ class TestPixelToHex(unittest.TestCase):
     
     def test_inout(self):
         self.assertEqual(hl.pixel_to_hex((-48, -96)), (-1, -1, 2))
-        self.assertEqual(hl.pixel_to_hex((-96, 0), return_coords_obj=True), HexCoords(-2, 1, 1))
+        self.assertEqual(hl.pixel_to_hex((-96, 0), return_obj_type="Coords"), HexCoords(-2, 1, 1))
         self.assertEqual(hl.pixel_to_hex((96, -128)), (2, -3, 1))
-        self.assertEqual(hl.pixel_to_hex((-96, 64), return_coords_obj=True), HexCoords(-2, 2, 0))
+        self.assertEqual(hl.pixel_to_hex((-96, 64), return_obj_type="Coords"), HexCoords(-2, 2, 0))
         self.assertEqual(hl.pixel_to_hex(self.obj_2), (3, -3, 0))
-        self.assertEqual(hl.pixel_to_hex(self.obj_3, return_coords_obj=True), HexCoords(2, -1, -1))
+        self.assertEqual(hl.pixel_to_hex(self.obj_3, return_obj_type="Coords"), HexCoords(2, -1, -1))
     
     def tearDown(self):
         self.obj_0.dispose()
@@ -998,14 +1000,14 @@ class TestDistLimFloodFill(unittest.TestCase):
         self.obj_3.r = 0
         self.obj_3.s = 0
         self.obj_3.movement_cost = 1
-        self.test_grp_3 = testgrp_generator((0, 0, 0), 2, ((0, -1, 1, {"movement_cost":0} ), 
-                                                          (1, -1, 0, {"movement_cost":0} ), 
-                                                          (-1, 1, 0, {"movement_cost":0} ), 
-                                                          (1, 1, -2, {"movement_cost":0} ) ))
-        self.test_grp_4 = testgrp_generator((0, 0, 0), 2, ((2, 0, -2, {"movement_cost":0} ), 
-                                                             (1, 1, -2, {"movement_cost":0} ), 
-                                                             (0, 2, -2, {"movement_cost":0} ), 
-                                                             (-1, 0, 1, {"movement_cost":0} ) ))
+        self.test_grp_3 = testgrp_generator((0, 0, 0), 2, ((0, -1, 1, {"movement_cost":-1} ), 
+                                                          (1, -1, 0, {"movement_cost":-1} ), 
+                                                          (-1, 1, 0, {"movement_cost":-1} ), 
+                                                          (1, 1, -2, {"movement_cost":-1} ) ))
+        self.test_grp_4 = testgrp_generator((0, 0, 0), 2, ((2, 0, -2, {"movement_cost":-1} ), 
+                                                             (1, 1, -2, {"movement_cost":-1} ), 
+                                                             (0, 2, -2, {"movement_cost":-1} ), 
+                                                             (-1, 0, 1, {"movement_cost":-1} ) ))
         
     def test_error(self):
         with self.assertRaises(TypeError):
@@ -1031,6 +1033,11 @@ class TestDistLimFloodFill(unittest.TestCase):
         self.obj_1.dispose()
         self.obj_2.dispose()
         self.obj_3.dispose()
+        testgrp_teardown(self.test_grp_0)
+        testgrp_teardown(self.test_grp_1)
+        testgrp_teardown(self.test_grp_2)
+        testgrp_teardown(self.test_grp_3)
+        testgrp_teardown(self.test_grp_4)
     
 
 # run unittests ------------------------------------------------------------- #
