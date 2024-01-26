@@ -160,13 +160,16 @@ GraphMatrix.connected(self, from_coord:object|tuple|HexCoords) -> set:
 GraphMatrix.get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float:
     Get the movement cost from one Object or coordinate to another.
 
-GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
+                                 *, test_accessibility:bool=False) -> list:
     Algorithm for searching a tree data structure for a node that satisfies a given property.
 
-GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
+                                *, test_accessibility:bool=False) -> list:
     Supports weighted movement cost.
     
-GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
+                             *, test_accessibility:bool=False) -> list:
     Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
     
 
@@ -414,7 +417,7 @@ class GraphMatrix:
     
     
     # graph based path finding algorithms ----------------------------------- #
-    def breadth_first_search(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+    def breadth_first_search(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, *, test_accessibility:bool=False) -> list:
         """
         Algorithm for searching a tree data structure for a node that satisfies a 
         given property. It starts at the tree root and explores all nodes at the 
@@ -431,6 +434,11 @@ class GraphMatrix:
             A Tuple consisting of an Integer or Float for the q, r and s value,
             or an Object having a q, r and s attribute, the assigned values being 
             an Integer or Float. Needs to adhere to zero constraint.
+            
+        test_accessibility : Boolean, optional
+            If True, tests if start and goal are connected to other tiles,
+            this is to minimize the likelihood of running a pathfinding algorithm,
+            that either returns an invalid path or no path.
         
         Raises:
         -------
@@ -450,6 +458,11 @@ class GraphMatrix:
         """
         start = container_or_object(start, 3, return_obj_type="Tuple")
         goal = container_or_object(goal, 3, return_obj_type="Tuple")
+        
+        # test accessibility ------------------------------------------------ #
+        if test_accessibility:
+            if start not in self.matrix_coords or goal not in self.matrix_coords:
+                return None
         
         frontier = list()
         frontier.append(start)
@@ -469,6 +482,10 @@ class GraphMatrix:
                             if self.get_movement_cost(current, nbor) >= 0:
                                 frontier.append(nbor)
                                 came_from[nbor] = current
+                                
+        # if goal not reached and no more frontier tiles left return None --- #
+        else:
+            return None
         
         # follow the path from goal to start in came_from ------------------- #
         current = goal 
@@ -482,7 +499,7 @@ class GraphMatrix:
         return path
 
 
-    def dijkstras_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+    def dijkstras_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, *, test_accessibility:bool=False) -> list:
         """
         Algorithm for searching a tree data structure for a node that satisfies a 
         given property. It starts at the tree root and explores all nodes at the 
@@ -500,6 +517,11 @@ class GraphMatrix:
             A Tuple consisting of an Integer or Float for the q, r and s value,
             or an Object having a q, r and s attribute, the assigned values being 
             an Integer or Float. Needs to adhere to zero constraint.
+            
+        test_accessibility : Boolean, optional
+            If True, tests if start and goal are connected to other tiles,
+            this is to minimize the likelihood of running a pathfinding algorithm,
+            that either returns an invalid path or no path.
         
         Raises:
         -------
@@ -519,6 +541,11 @@ class GraphMatrix:
         """
         start = container_or_object(start, 3, return_obj_type="Tuple")
         goal = container_or_object(goal, 3, return_obj_type="Tuple")
+        
+        # test accessibility ------------------------------------------------ #
+        if test_accessibility:
+            if start not in self.matrix_coords or goal not in self.matrix_coords:
+                return None
         
         frontier = list()
         frontier.append((start, 0))
@@ -544,6 +571,10 @@ class GraphMatrix:
                             came_from[nbor] = current[0]
                             frontier.append((nbor, new_cost))
                             frontier.sort(key= lambda x:x[1] in frontier)
+                            
+        # if goal not reached and no more frontier tiles left return None --- #
+        else:
+            return None
                         
         # follow the path from goal to start in came_from ------------------- #
         current = goal 
@@ -557,7 +588,7 @@ class GraphMatrix:
         return path
                    
 
-    def a_star_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:
+    def a_star_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, *, test_accessibility:bool=False) -> list:
         """
         Modified version of Dijkstra’s Algorithm that is optimized for a single 
         destination. It prioritizes paths that seem to be leading closer to a goal.
@@ -573,6 +604,11 @@ class GraphMatrix:
             A Tuple consisting of an Integer or Float for the q, r and s value,
             or an Object having a q, r and s attribute, the assigned values being 
             an Integer or Float. Needs to adhere to zero constraint.
+            
+        test_accessibility : Boolean, optional
+            If True, tests if start and goal are connected to other tiles,
+            this is to minimize the likelihood of running a pathfinding algorithm,
+            that either returns an invalid path or no path.
             
         Raises:
         -------
@@ -592,6 +628,11 @@ class GraphMatrix:
         """
         start = container_or_object(start, 3, return_obj_type="Tuple")
         goal = container_or_object(goal, 3, return_obj_type="Tuple")
+        
+        # test accessibility ------------------------------------------------ #
+        if test_accessibility:
+            if start not in self.matrix_coords or goal not in self.matrix_coords:
+                return None
         
         frontier = list()
         frontier.append((start, 0))
@@ -618,6 +659,10 @@ class GraphMatrix:
                             priority = new_cost + distance(goal, nbor)
                             frontier.append((nbor, priority))
                             frontier.sort(key= lambda x:x[1] in frontier)
+        
+        # if goal not reached and no more frontier tiles left return None --- #
+        else:
+            return None
                         
         # follow the path from goal to start in came_from ------------------- #
         current = goal 

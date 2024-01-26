@@ -324,25 +324,37 @@ class TestTupleOrObject(unittest.TestCase):
         # Object 2dim as input ---------------------------------------------- #
         self.assertEqual(hl.container_or_object(self.obj_0, 2), (1, 1))
         self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="Coords"), hl.RectCoords(1, 1))
+        self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="List"), [1, 1])
+        self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="Dict"), {"x":1, "y":1})
         # Object 3dim as input ---------------------------------------------- #
         self.assertEqual(hl.container_or_object(self.obj_0, 3), (2, -2, 0))
         self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="Coords"), hl.HexCoords(2, -2, 0))
+        self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="List"), [2, -2, 0])
+        self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="Dict"), {"q":2, "r":-2, "s":0})
         # Tuple 2dim as input ----------------------------------------------- #
         self.assertEqual(hl.container_or_object((2, 3), 2), (2, 3))
         self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="Coords"), hl.RectCoords(2, 3))
+        self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="List"), [2, 3])
+        self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="Dict"), {"x":2, "y":3})
         # Tuple 3dim as input ----------------------------------------------- #
         self.assertEqual(hl.container_or_object((3, 0, -3), 3), (3, 0, -3))
         self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Coords"), hl.HexCoords(3, 0, -3))
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="List"), [3, 0, -3])
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Dict"), {"q":3, "r":0, "s":-3})
         # RectCoords as input ----------------------------------------------- #
         self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2), (2, 3))
         self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="Coords"), hl.RectCoords(2, 3))
+        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="List"), [2, 3])
+        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="Dict"), {"x":2, "y":3})
         # HexCoords as input ------------------------------------------------ #
         self.assertEqual(hl.container_or_object(hl.HexCoords(3, 0, -3), 3), (3, 0, -3))
         self.assertEqual(hl.container_or_object(hl.HexCoords(3, 0, -3), 3, return_obj_type="Coords"), hl.HexCoords(3, 0, -3))
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="List"), [3, 0, -3])
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Dict"), {"q":3, "r":0, "s":-3})
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
+        del self.obj_0
+        del self.obj_1
         
 
 # TestLinint ---------------------------------------------------------------- #
@@ -385,13 +397,23 @@ class TestRectLinint(unittest.TestCase):
             hl.rect_linint(self.obj_0, self.obj_2, 0.2)
             
     def test_inout(self):
-        self.assertEqual(hl.rect_linint(self.obj_0, self.obj_1, 0.2), (1, 1))
-        self.assertEqual(hl.rect_linint((-3,1), (2,3), 0.5), (-0.5, 2))
+        # return type Tuple ------------------------------------------------- #
+        self.assertEqual(hl.rect_linint(self.obj_0, self.obj_1, 0.2, return_obj_type="Tuple"), (1, 1))
+        self.assertEqual(hl.rect_linint((-3,1), (2,3), 0.5, return_obj_type="Tuple"), (-0.5, 2))
+        # return type RectCoords -------------------------------------------- #
+        self.assertEqual(hl.rect_linint(self.obj_0, self.obj_1, 0.2, return_obj_type="Coords"), RectCoords(1, 1))
+        self.assertEqual(hl.rect_linint((-3,1), (2,3), 0.5, return_obj_type="Coords"), RectCoords(-0.5, 2))
+        # return type Dict -------------------------------------------------- #
+        self.assertEqual(hl.rect_linint(self.obj_0, self.obj_1, 0.2, return_obj_type="List"), [1, 1])
+        self.assertEqual(hl.rect_linint((-3,1), (2,3), 0.5, return_obj_type="List"), [-0.5, 2])
+        # return type List -------------------------------------------------- #
+        self.assertEqual(hl.rect_linint(self.obj_0, self.obj_1, 0.2, return_obj_type="Dict"), {"x":1, "y":1})
+        self.assertEqual(hl.rect_linint((-3,1), (2,3), 0.5, return_obj_type="Dict"), {"x":-0.5, "y":2})
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
 
 
 # TestCubeLinint ------------------------------------------------------------ #
@@ -488,17 +510,17 @@ class TestCubeLinint(unittest.TestCase):
         self.assertEqual(hl.cube_linint(self.obj_5, self.obj_7, 0.5, return_obj_type="Coords"), HexCoords(0, -1, 1))
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
-        self.obj_4.dispose()
-        self.obj_5.dispose()
-        self.obj_6.dispose()
-        self.obj_7.dispose()
-        self.obj_8.dispose()
-        self.obj_9.dispose()
-        self.obj_10.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
+        del self.obj_4
+        del self.obj_5
+        del self.obj_6
+        del self.obj_7
+        del self.obj_8
+        del self.obj_9
+        del self.obj_10
 
 
 # TestRoundContainer -------------------------------------------------------- #
@@ -573,10 +595,10 @@ class TestGetxy(unittest.TestCase):
         self.assertEqual(hl.get_xy(self.obj_3, return_obj_type="Coords"), RectCoords(3, 4))
     
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
 
 
 # TestSetxy ----------------------------------------------------------------- #
@@ -609,8 +631,8 @@ class TestSetxy(unittest.TestCase):
         self.assertEqual(self.obj_1.y, 4)
     
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
+        del self.obj_0
+        del self.obj_1
 
 
 # TestGetqrs ---------------------------------------------------------------- #
@@ -635,8 +657,8 @@ class TestGetqrs(unittest.TestCase):
         self.assertEqual(hl.get_qrs(self.obj_0, return_obj_type="Coords"), HexCoords(1, 1, -2))
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
+        del self.obj_0
+        del self.obj_1
 
 
 # TestSetqrs ---------------------------------------------------------------- #
@@ -663,7 +685,7 @@ class TestSetqrs(unittest.TestCase):
         self.assertEqual(self.obj_0.s, -3)
         
     def tearDown(self):
-        self.obj_0.dispose()
+        del self.obj_0
 
 
 # TestHexToPixel ------------------------------------------------------------ #
@@ -707,10 +729,10 @@ class TestHexToPixel(unittest.TestCase):
         self.assertEqual(hl.hex_to_pixel(self.obj_3, return_obj_type="Coords"), RectCoords(96, 0))
     
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
 
 
 # TestPixelToHex ------------------------------------------------------------ #
@@ -748,10 +770,10 @@ class TestPixelToHex(unittest.TestCase):
         self.assertEqual(hl.pixel_to_hex(self.obj_3, return_obj_type="Coords"), HexCoords(2, -1, -1))
     
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
 
 
 # TestNeighbors ------------------------------------------------------------- #
@@ -783,8 +805,8 @@ class TestNeighbors(unittest.TestCase):
         self.assertEqual(hl.neighbors(self.obj_1), ((0, 0, 0), (0, -1, 1), (-1, -1, 2), (-2, 0, 2), (-2, 1, 1), (-1, 1, 0)))
     
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
+        del self.obj_0
+        del self.obj_1
 
 
 # TestDistance -------------------------------------------------------------- #
@@ -843,12 +865,12 @@ class TestDistance(unittest.TestCase):
         self.assertEqual(hl.distance(self.obj_3, self.obj_5), 4)
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
-        self.obj_4.dispose()
-        self.obj_5.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
+        del self.obj_4
+        del self.obj_5
 
 
 # TestInRange --------------------------------------------------------------- #
@@ -887,9 +909,9 @@ class TestInRange(unittest.TestCase):
         self.assertEqual(hl.in_range(self.obj_2, 2), {(2, 1, -3), (0, -1, 1), (-2, 1, 1), (-2, 3, -1), (-1, 3, -2), (0, 3, -3), (2, -1, -1), (0, 2, -2), (1, 0, -1), (2, 0, -2), (-1, 1, 0), (1, -1, 0), (-1, 0, 1), (-1, 2, -1), (0, 0, 0), (0, 1, -1), (1, 2, -3), (-2, 2, 0), (1, 1, -2)})
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
 
 
 # TestLineDraw -------------------------------------------------------------- #
@@ -957,14 +979,14 @@ class TestLineDraw(unittest.TestCase):
         self.assertEqual(hl.line_draw(self.obj_7, self.obj_3), ((-2, 1, 1), (-1, 1, 0), (0, 0, 0), (1, 0, -1), (2, 0, -2)))
         
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
-        self.obj_4.dispose()
-        self.obj_5.dispose()
-        self.obj_6.dispose()
-        self.obj_7.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
+        del self.obj_4
+        del self.obj_5
+        del self.obj_6
+        del self.obj_7
 
 
 # TestDistLimFloodFill ------------------------------------------------------ #
@@ -1029,10 +1051,10 @@ class TestDistLimFloodFill(unittest.TestCase):
                          {(2, -2, 0), (1, 0, -1), (0, -1, 1), (-1, -1, 2), (-2, 1, 1), (-1, 2, -1), (0, 0, 0), (1, -2, 1), (-1, 1, 0), (2, -1, -1), (-2, 2, 0), (1, -1, 0), (0, 1, -1), (0, -2, 2)})
     
     def tearDown(self):
-        self.obj_0.dispose()
-        self.obj_1.dispose()
-        self.obj_2.dispose()
-        self.obj_3.dispose()
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
         testgrp_teardown(self.test_grp_0)
         testgrp_teardown(self.test_grp_1)
         testgrp_teardown(self.test_grp_2)

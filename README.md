@@ -167,13 +167,13 @@ Return all connected coordinates. Returns None, in case of there aren't being an
 **GraphMatrix.get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float:**
 Get the movement cost from one Object or coordinate to another.
 
-**GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:**  
+**GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, test_accessibility:bool=False) -> list:**  
 Algorithm for searching a tree data structure for a node that satisfies a given property.
 
-**GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:**  
+**GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, test_accessibility:bool=False) -> list:**  
 Supports weighted movement cost.
     
-**GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords) -> list:**  
+**GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, test_accessibility:bool=False) -> list:**  
 Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
 
 
@@ -192,11 +192,11 @@ List of issues to be solved before the package will be released at version 1.0
 * [ ] refactor code to be organized around one class handling all the logic affecting objects in passed container (like observer.py etc.), keep functions only implementation ???
 * [ ] find out why and fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
 * [ ] add a raise error, if a goal or start is passed to pathfinding, which is inaccessible (has negative movement_cost)
-* [ ] add a "if not connected functionality" to pathfinding algorithms
+* [x] add a "if not connected functionality" to pathfinding algorithms
 * [x] update TestTestgrpGenerator unittest, block_var to movement_cost
 * [ ] add a mechanic to GraphMatrix methods del_entry and update_entry that update GraphMatrix.matrix_coords
 * [x] add List and Dictionary as a return option for functions, which offered only Tuple and RectCoords/HexCoords
-* [ ] update unittests to test for dictionary and list outputs
+* [ ] update remaining unittests to test for dictionary and list outputs, as well as modified GraphMatrix pathfinding
 
 
 ## References
