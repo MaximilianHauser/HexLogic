@@ -1,3 +1,11 @@
+<!-- id='changelog-0.0.4'-->
+# 0.0.4 — 2024-05-11
+
+## Added
+
+- added get_angle function, which calculates the angle from a line drawn from one point to another relative to the x-axis of a cartesian coordinate system
+- added unittests for get_angle function
+
 <!-- id='changelog-0.0.3'-->
 # 0.0.3 — 2024-01-26
 

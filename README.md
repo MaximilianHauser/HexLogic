@@ -139,6 +139,9 @@ Converts cube coordinates to pixel coordinates.
     
 **pixel_to_hex(xy:object|tuple|RectCoords, tile_width:int=64, tile_height:int=64, return_coords_obj:bool=False) -> tuple|HexCoords:**  
 Converts pixel coordinates to cube coordinates.
+
+**get_angle(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> float:**  
+Returns the angle from a line through obj_a and abj_b relative to the x-axis of a two dimensional cartesian coordinate system.
     
 **neighbors(qrs:object|tuple|HexCoords) -> set:**  
 Return a List of coordinates of neighboring hexagons.

@@ -48,6 +48,11 @@ collections.namedtuple
     objects that have fields accessible by attribute lookup as well as being 
     indexable and iterable.
     
+math
+    This module provides access to the mathematical functions defined by the 
+    C standard library.
+    
+    
 unittest
     The unittest unit testing framework supports test automation sharing of 
     setup and shutdown code for tests, aggregation of tests into collections,
@@ -188,6 +193,7 @@ https://numpydoc.readthedocs.io/en/latest/format.html
 
 # import section ------------------------------------------------------------ #
 from collections import namedtuple
+from math import degrees, atan2
 
 
 # custom datatypes to ensure constraints ------------------------------------ #
@@ -1383,7 +1389,62 @@ def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:i
         qrs = {"q":q, "r":r, "s":s}
         
     return qrs
+
     
+def get_angle(obj_a:object|tuple|RectCoords|HexCoords, obj_b:object|tuple|RectCoords|HexCoords, *, 
+              expected_len_a:int=3, expected_len_b:int=3) -> float:
+    """
+    Returns the angle in degrees from a line through obj_a and abj_b relative to 
+    the x-axis of a two dimensional cartesian coordinate system. On a screen, 
+    because of the relativ to normal, inverted y-Axis, the angle is clockwise.
+    
+    Parameters:
+    -----------
+    obj_a : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the x and y, or 
+            q, r and s value, or an Object having x and y or a q, r and s attribute, 
+            the assigned values being an Integer or Float. Needs to adhere to 
+            zero constraint.
+            
+    obj_b : Object | Tuple | HexCoords
+            A Tuple consisting of an Integer or Float for the q, r and s value,
+            or an Object having a q, r and s attribute, the assigned values being an 
+            Integer or Float. Needs to adhere to zero constraint.
+            
+    Raises:
+    -------
+    TypeError: 
+        If x or y is not an Integer or a Float. If q, r or s is not an Integer 
+        or a Float. If a passed Tuple has too many or too few individual values.
+        
+    AttributeError: 
+        If an Object is passed, but is missing the x, y or q, r or s coordinate attributes.
+        
+    ConstraintViolation: 
+        If the q + r + s = 0 constraint is violated.
+        
+    Returns:
+    --------
+    angle(Float): 
+        The angle between a line drawn from A to B, relative to the X-Axis in 
+        radians or in degrees.
+    """
+    
+    a = container_or_object(obj_a, expected_len_a)
+    b = container_or_object(obj_b, expected_len_b)
+    
+    if len(a) == 3:
+        a = hex_to_pixel(a)
+    if len(b) == 3:
+        b = hex_to_pixel(b)
+        
+    angle = atan2(b[1]-a[1], b[0]-a[0])
+    
+    if angle < 0:
+        return 360 + degrees(angle) 
+    else:
+        return degrees(angle) 
+
 
 def neighbors(qrs:object|tuple|HexCoords) -> set:
     """
@@ -1663,5 +1724,4 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
                             fringes[i].append(nbor_coords)
     
     return visited
-
 

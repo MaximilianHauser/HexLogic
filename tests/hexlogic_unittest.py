@@ -775,6 +775,54 @@ class TestPixelToHex(unittest.TestCase):
         del self.obj_2
         del self.obj_3
 
+# TestGetAngle -------------------------------------------------------------- #
+class TestGetAngle(unittest.TestCase):
+    
+    def setUp(self):
+        self.obj_0 = Mock()
+        self.obj_0.x = 0
+        self.obj_0.y = 0
+        self.obj_0.q = 0
+        self.obj_0.r = 0
+        self.obj_0.s = 0
+        self.obj_1 = Mock()
+        self.obj_1.x = 0
+        self.obj_1.y = -1
+        self.obj_1.q = 1
+        self.obj_1.r = 1
+        self.obj_1.s = 1
+        self.obj_2 = Mock()
+        self.obj_2.x = 1
+        del self.obj_2.y
+        self.obj_2.q = 1
+        self.obj_2.r = 1
+        self.obj_2.s = -2
+        self.obj_3 = Mock()
+        self.obj_3.x = 1
+        self.obj_3.y = 1
+        self.obj_3.q = -1
+        self.obj_3.r = 1
+        self.obj_3.s = 0
+    
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            hl.get_angle((0,0), (1,"0"), expected_len_a=2, expected_len_b=2)
+        with self.assertRaises(AttributeError):
+            hl.get_angle(self.obj_0, self.obj_2, expected_len_a=2, expected_len_b=2)
+        with self.assertRaises(hl.ConstraintViolation):
+            hl.get_angle((2,3,-4), (2,1,-1))
+    
+    def test_inout(self):
+        self.assertEqual(hl.get_angle((0,0),(-1,1), expected_len_a=2, expected_len_b=2), 135.0)
+        self.assertEqual(hl.get_angle(self.obj_0, self.obj_1, expected_len_a=2, expected_len_b=2), 270.0)
+        self.assertEqual(hl.get_angle((0,0,0), (0,1,-1)), 90.0)
+        self.assertAlmostEqual(hl.get_angle(self.obj_0, self.obj_3), 146.30993247)
+    
+    def tearDown(self):
+        del self.obj_0
+        del self.obj_1
+        del self.obj_2
+        del self.obj_3
 
 # TestNeighbors ------------------------------------------------------------- #
 class TestNeighbors(unittest.TestCase):

@@ -5,7 +5,7 @@ Created on Sun Oct 15 21:19:20 2023
 @author: Maximilian Hauser
 """
 
-__version__ = "0.0.2"
+__version__ = "0.0.4"
 
 from hexlogic import RectCoords as RectCoords
 from hexlogic import HexCoords as HexCoords
@@ -23,6 +23,7 @@ from hexlogic import get_qrs as get_qrs
 from hexlogic import set_qrs as set_qrs
 from hexlogic import hex_to_pixel as hex_to_pixel
 from hexlogic import pixel_to_hex as pixel_to_hex
+from hexlogic import get_angle as get_angle
 from hexlogic import neighbors as neighbors
 from hexlogic import distance as distance
 from hexlogic import in_range as in_range
