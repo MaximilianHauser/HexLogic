@@ -25,8 +25,8 @@ from unittest.mock import Mock
 # unittests ----------------------------------------------------------------- #
 def testgrp_generator(center_obj:object|tuple|HexCoords, radius:int, override_coords:tuple=False) -> set:
     """
-    Generate a set containing objects with q, r and s attributes to simulate a 
-    coordinate groups or a SpriteGroup allow unittests on more complex functions.
+    Generates a set containing objects with q, r and s attributes to simulate a 
+    coordinate group or a SpriteGroup, to allow unittests on more complex functions.
     Override coordinates must be formatted as follows: 
     (q, r, s, {attribute_name : override_value})
     """
@@ -63,7 +63,7 @@ def testgrp_generator(center_obj:object|tuple|HexCoords, radius:int, override_co
 
 def testgrp_teardown(test_grp:list) -> None:
     """
-    Clean dispose of the Mock objects in test_grp.
+    Clean dispose of Mock objects in test_grp.
     """
     test_grp.clear()
     del test_grp
@@ -205,6 +205,22 @@ class TestGraphMatrix(unittest.TestCase):
     
     def test_init_attributes(self):
         self.assertEqual(self.test_matrix_3.matrix_dict, self.control_dict)
+        
+    def test_update_entry(self):
+        # only tests matrix_coords functionality ---------------------------- #
+        self.assertNotIn((0, -6, 6), self.test_matrix_4.matrix_coords)
+        self.test_matrix_4.update_entry((0, -5, 5), (0, -6, 6), 1)
+        self.test_matrix_4.update_entry((0, -6, 6), (0, -5, 5),  1)
+        self.assertIn((0, -6, 6), self.test_matrix_4.matrix_coords)
+    
+    def test_del_entry(self):
+        # only tests matrix_coords functionality ---------------------------- #
+        self.test_matrix_4.update_entry((0, -5, 5), (0, -6, 6), 1)
+        self.test_matrix_4.update_entry((0, -6, 6), (0, -5, 5),  1)
+        self.assertIn((0, -6, 6), self.test_matrix_4.matrix_coords)
+        self.test_matrix_4.del_entry((0, -5, 5), (0, -6, 6))
+        self.test_matrix_4.del_entry((0, -6, 6), (0, -5, 5))
+        self.assertNotIn((0, -6, 6), self.test_matrix_4.matrix_coords)
         
     def test_breadth_first_search_error(self):
         with self.assertRaises(TypeError):
@@ -429,6 +445,10 @@ class TestCubeLinint(unittest.TestCase):
         self.obj_1.q = -1
         self.obj_1.r = -1
         self.obj_1.s = 2
+        self.obj_11 = Mock()
+        self.obj_11.q = 0
+        self.obj_11.r = 0
+        self.obj_11.s = 0
         # assertRaises TypeError, ConstraintViolation ----------------------- #
         self.obj_2 = Mock()
         self.obj_2.q = 3
@@ -447,6 +467,10 @@ class TestCubeLinint(unittest.TestCase):
         self.obj_5.q = 2
         self.obj_5.r = -3
         self.obj_5.s = 1
+        self.obj_12 = Mock()
+        self.obj_12.q = 3
+        self.obj_12.r = 1
+        self.obj_12.s = -4
         # Object and Tuple | HexCoords | Object ----------------------------- #
         self.obj_6 = Mock()
         self.obj_6.q = -1
@@ -468,6 +492,26 @@ class TestCubeLinint(unittest.TestCase):
         self.obj_10.q = 1
         self.obj_10.r = 1
         self.obj_10.s = -2
+        self.obj_13 = Mock()
+        self.obj_13.q = -3
+        self.obj_13.r = 4
+        self.obj_13.s = -1
+        self.obj_14 = Mock()
+        self.obj_14.q = -3
+        self.obj_14.r = 2
+        self.obj_14.s = 1
+        self.obj_15 = Mock()
+        self.obj_15.q = -1
+        self.obj_15.r = -1
+        self.obj_15.s = 2
+        self.obj_16 = Mock()
+        self.obj_16.q = 3
+        self.obj_16.r = -1
+        self.obj_16.s = -2
+        self.obj_17 = Mock()
+        self.obj_17.q = 1
+        self.obj_17.r = -3
+        self.obj_17.s = 2
         
     def test_error(self):
         with self.assertRaises(TypeError):
@@ -484,30 +528,48 @@ class TestCubeLinint(unittest.TestCase):
         # Tuple and Tuple --------------------------------------------------- #
         self.assertEqual(hl.cube_linint((-2, 0, 2), (2, 0, -2), 0.5), (0, 0, 0))
         self.assertEqual(hl.cube_linint((0, -1, 1), (0, 1, -1), 0.5, return_obj_type="Coords"), HexCoords(0, 0, 0))
+        self.assertEqual(hl.cube_linint((-4, 2, 2), (0, 0, 0), 0.5, return_obj_type="List"), [-2, 1, 1])
+        self.assertEqual(hl.cube_linint((-4, 4, 0), (0, 4, -4), 0.5, return_obj_type="Dict"), {"q":-2, "r":4, "s":-2})
         # Tuple and HexCoords ----------------------------------------------- #
         self.assertEqual(hl.cube_linint((2, -1, -1), HexCoords(-1, 2, -1), 1), (-1, 2, -1))
         self.assertEqual(hl.cube_linint((-2, 2, 0), HexCoords(0, 2, -2), 0.5, return_obj_type="Coords"), HexCoords(-1, 2, -1))
+        self.assertEqual(hl.cube_linint((0, -4, 4), (4, -4, 0), 0.25, return_obj_type="List"), [1, -4, 3])
+        self.assertEqual(hl.cube_linint((0, 4, -4), (0, 0, 0), 0.75, return_obj_type="Dict"), {"q":0, "r":1, "s":-1})
         # Tuple and Object -------------------------------------------------- #
         self.assertEqual(hl.cube_linint((0, 0, 0), self.obj_0, 0.5), (1, -1, 0))
         self.assertEqual(hl.cube_linint((-1, 1, 0), self.obj_1, 0.5, return_obj_type="Coords"), HexCoords(-1, 0, 1))
+        self.assertEqual(hl.cube_linint((-3, -1, 4), self.obj_11, 0.25, return_obj_type="List"), [-2.25, -0.75, 3])
+        self.assertEqual(hl.cube_linint((4, -2, -2), self.obj_11, 0.5, return_obj_type="Dict"), {"q":2, "r":-1, "s":-1})
         # HexCoords and Tuple ----------------------------------------------- #
         self.assertEqual(hl.cube_linint(HexCoords(0, 2, -2), (0, 0, 0), 0.5), (0, 1, -1))
         self.assertEqual(hl.cube_linint(HexCoords(0, 1, -1), (2, -1, -1), 0.5, return_obj_type="Coords"), HexCoords(1, 0, -1))
+        self.assertEqual(hl.cube_linint(HexCoords(-2, 0, 2), (2, 0, -2), 0.5, return_obj_type="List"), [0, 0, 0])
+        self.assertEqual(hl.cube_linint(HexCoords(4, 0, -4), (0, 1, -1), 0.5, return_obj_type="Dict"), {"q":2, "r":0.5, "s":-2.5})
         # HexCoords and HexCoords ------------------------------------------- #
         self.assertEqual(hl.cube_linint(HexCoords(-2, 2, 0), HexCoords(0, -2, 2), 0.5), (-1, 0, 1))
         self.assertEqual(hl.cube_linint(HexCoords(-1, -1, 2), HexCoords(1, 1, -2), 0.5, return_obj_type="Coords"), HexCoords(0, 0, 0))
+        self.assertEqual(hl.cube_linint(HexCoords(-1, -3, 4), HexCoords(3, -3, 0), 0.25, return_obj_type="List"), [0, -3, 3])
+        self.assertEqual(hl.cube_linint(HexCoords(-3, 0, 3), HexCoords(2, -1, -1), 0.45, return_obj_type="Dict"), {"q":-0.75, "r":-0.45, "s":1.2})
         # Hex Coords and Object --------------------------------------------- #
         self.assertEqual(hl.cube_linint(HexCoords(-2, 0, 2), self.obj_4, 0.25), (-1, 0, 1))
         self.assertEqual(hl.cube_linint(HexCoords(1, -2, 1), self.obj_5, 1, return_obj_type="Coords"), HexCoords(2, -3, 1))
+        self.assertEqual(hl.cube_linint(HexCoords(-2, 2, 0), self.obj_12, 0.4, return_obj_type="List"), [0, 1.6, -1.6])
+        self.assertEqual(hl.cube_linint(HexCoords(3, -3, 0), self.obj_12, 0.5, return_obj_type="Dict"), {"q":3, "r":-1, "s":-2})
         # Object and Tuple -------------------------------------------------- #
         self.assertEqual(hl.cube_linint(self.obj_6, (3, -3, 0), 0.75), (2, -2, 0))
         self.assertEqual(hl.cube_linint(self.obj_7, (2, -3, 1), 0.25, return_obj_type="Coords"), HexCoords(-1, 0, 1))
+        self.assertEqual(hl.cube_linint(self.obj_13, (3, 1, -4), 0.66, return_obj_type="List"), [0.96, 2.02, -2.98])
+        self.assertEqual(hl.cube_linint(self.obj_13, (1, 2, -3), 0.5, return_obj_type="Dict"), {"q":-1, "r":3, "s":-2})
         # Object and Hexcoords ---------------------------------------------- #
         self.assertEqual(hl.cube_linint(self.obj_8, HexCoords(3, -3, 0), 0.5), (2, -3, 1))
         self.assertEqual(hl.cube_linint(self.obj_9, HexCoords(0, -3, 3), 0.5, return_obj_type="Coords"), HexCoords(0, -2, 2))
+        self.assertEqual(hl.cube_linint(self.obj_14, HexCoords(1, 2, -3), 0.5, return_obj_type="List"), [-1, 2, -1])
+        self.assertEqual(hl.cube_linint(self.obj_14, HexCoords(1, -2, 1), 0.5, return_obj_type="Dict"), {"q":-1, "r":0, "s":1})
         # Object and Object ------------------------------------------------- #
         self.assertEqual(hl.cube_linint(self.obj_10, self.obj_8, 0.75), (1, -2, 1))
         self.assertEqual(hl.cube_linint(self.obj_5, self.obj_7, 0.5, return_obj_type="Coords"), HexCoords(0, -1, 1))
+        self.assertEqual(hl.cube_linint(self.obj_15, self.obj_16, 0.5, return_obj_type="List"), [1, -1, 0])
+        self.assertEqual(hl.cube_linint(self.obj_15, self.obj_17, 0.5, return_obj_type="Dict"), {"q":0, "r":-2, "s":2})
         
     def tearDown(self):
         del self.obj_0
@@ -552,13 +614,17 @@ class TestRoundHex(unittest.TestCase):
         
         with self.assertRaises(hl.ConstraintViolation):
             hl.round_hex((2, 2, 3), return_obj_type="Coords")
-            hl.round_hex(hl.HexCoords(2, 2, 3), return_obj_type="Coords")
+            hl.round_hex(hl.HexCoords(2, 2, 3), return_obj_type="List")
     
     def test_inout(self):
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3)), (1, 3, -4))
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="Coords"), hl.HexCoords(1, 3, -4))
+        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="List"), [1, 3, -4])
+        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="Dict"), {"q":1, "r":3, "s":-4})
         self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7)), hl.HexCoords(1, 2, -3))
         self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="Coords"), hl.HexCoords(1, 2, -3))
+        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="List"), [1, 2, -3])
+        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="Dict"), {"q":1, "r":2, "s":-3})
 
 
 # TestGetxy ----------------------------------------------------------------- #  
@@ -593,6 +659,8 @@ class TestGetxy(unittest.TestCase):
     def test_inout(self):
         self.assertEqual(hl.get_xy(self.obj_2), (1, 2))
         self.assertEqual(hl.get_xy(self.obj_3, return_obj_type="Coords"), RectCoords(3, 4))
+        self.assertEqual(hl.get_xy(self.obj_2, return_obj_type="List"), [1, 2])
+        self.assertEqual(hl.get_xy(self.obj_3, return_obj_type="Dict"), {"x":3, "y":4})
     
     def tearDown(self):
         del self.obj_0
@@ -655,6 +723,8 @@ class TestGetqrs(unittest.TestCase):
     def test_inout(self):
         self.assertEqual(hl.get_qrs(self.obj_0), (1, 1, -2))
         self.assertEqual(hl.get_qrs(self.obj_0, return_obj_type="Coords"), HexCoords(1, 1, -2))
+        self.assertEqual(hl.get_qrs(self.obj_0, return_obj_type="List"), [1, 1, -2])
+        self.assertEqual(hl.get_qrs(self.obj_0, return_obj_type="Dict"), {"q":1, "r":1, "s":-2})
         
     def tearDown(self):
         del self.obj_0
@@ -711,6 +781,14 @@ class TestHexToPixel(unittest.TestCase):
         self.obj_3.q = 2
         self.obj_3.r = -1
         self.obj_3.s = -1
+        self.obj_4 = Mock()
+        self.obj_4.q = 0
+        self.obj_4.r = 4
+        self.obj_4.s = -4
+        self.obj_5 = Mock()
+        self.obj_5.q = 0
+        self.obj_5.r = 2
+        self.obj_5.s = -2
     
     def test_error(self):
         with self.assertRaises(TypeError):
@@ -723,16 +801,24 @@ class TestHexToPixel(unittest.TestCase):
     def test_inout(self):
         self.assertEqual(hl.hex_to_pixel((-1, -1, 2)), (-48, -96))
         self.assertEqual(hl.hex_to_pixel((-2, 1, 1), return_obj_type="Coords"), RectCoords(-96, 0))
+        self.assertEqual(hl.hex_to_pixel((1, -4, 3), return_obj_type="List"), [48, -224])
+        self.assertEqual(hl.hex_to_pixel((4, -4, 0), return_obj_type="Dict"), {"x":192, "y":-128})
         self.assertEqual(hl.hex_to_pixel(HexCoords(2, -3, 1)), (96, -128))
         self.assertEqual(hl.hex_to_pixel(HexCoords(-2, 2, 0), return_obj_type="Coords"), RectCoords(-96, 64))
+        self.assertEqual(hl.hex_to_pixel(HexCoords(1, -1, 0), return_obj_type="List"), [48, -32])
+        self.assertEqual(hl.hex_to_pixel(HexCoords(2, 1, -3), return_obj_type="Dict"), {"x":96, "y":128})
         self.assertEqual(hl.hex_to_pixel(self.obj_2), (144, -96))
         self.assertEqual(hl.hex_to_pixel(self.obj_3, return_obj_type="Coords"), RectCoords(96, 0))
+        self.assertEqual(hl.hex_to_pixel(self.obj_4, return_obj_type="List"), [0, 256])
+        self.assertEqual(hl.hex_to_pixel(self.obj_5, return_obj_type="Dict"), {"x":0, "y":128})
     
     def tearDown(self):
         del self.obj_0
         del self.obj_1
         del self.obj_2
         del self.obj_3
+        del self.obj_4
+        del self.obj_5
 
 
 # TestPixelToHex ------------------------------------------------------------ #
@@ -754,6 +840,12 @@ class TestPixelToHex(unittest.TestCase):
         self.obj_3 = Mock()
         self.obj_3.x = 96
         self.obj_3.y = 0
+        self.obj_4 = Mock()
+        self.obj_4.x = 0
+        self.obj_4.y = 256
+        self.obj_5 = Mock()
+        self.obj_5.x = 0
+        self.obj_5.y = 128
     
     def test_error(self):
         with self.assertRaises(TypeError):
@@ -764,16 +856,24 @@ class TestPixelToHex(unittest.TestCase):
     def test_inout(self):
         self.assertEqual(hl.pixel_to_hex((-48, -96)), (-1, -1, 2))
         self.assertEqual(hl.pixel_to_hex((-96, 0), return_obj_type="Coords"), HexCoords(-2, 1, 1))
+        self.assertEqual(hl.pixel_to_hex((48, -224), return_obj_type="List"), [1, -4, 3])
+        self.assertEqual(hl.pixel_to_hex((192, -128), return_obj_type="Dict"), {"q":4, "r":-4, "s":0})
         self.assertEqual(hl.pixel_to_hex((96, -128)), (2, -3, 1))
         self.assertEqual(hl.pixel_to_hex((-96, 64), return_obj_type="Coords"), HexCoords(-2, 2, 0))
+        self.assertEqual(hl.pixel_to_hex((48, -32), return_obj_type="List"), [1, -1, 0])
+        self.assertEqual(hl.pixel_to_hex((96, 128), return_obj_type="Dict"), {"q":2, "r":1, "s":-3})
         self.assertEqual(hl.pixel_to_hex(self.obj_2), (3, -3, 0))
         self.assertEqual(hl.pixel_to_hex(self.obj_3, return_obj_type="Coords"), HexCoords(2, -1, -1))
+        self.assertEqual(hl.pixel_to_hex(self.obj_4, return_obj_type="List"), [0, 4, -4])
+        self.assertEqual(hl.pixel_to_hex(self.obj_5, return_obj_type="Dict"), {"q":0, "r":2, "s":-2})
     
     def tearDown(self):
         del self.obj_0
         del self.obj_1
         del self.obj_2
         del self.obj_3
+        del self.obj_4
+        del self.obj_5
 
 # TestGetAngle -------------------------------------------------------------- #
 class TestGetAngle(unittest.TestCase):
@@ -851,6 +951,9 @@ class TestNeighbors(unittest.TestCase):
         self.assertEqual(hl.neighbors((1, -2, 1)), ((2, -2, 0), (2, -3, 1), (1, -3, 2), (0, -2, 2), (0, -1, 1), (1, -1, 0)))
         self.assertEqual(hl.neighbors(HexCoords(0, -1, 1)), ((1, -1, 0), (1, -2, 1), (0, -2, 2), (-1, -1, 2), (-1, 0, 1), (0, 0, 0)))
         self.assertEqual(hl.neighbors(self.obj_1), ((0, 0, 0), (0, -1, 1), (-1, -1, 2), (-2, 0, 2), (-2, 1, 1), (-1, 1, 0)))
+        self.assertEqual(hl.neighbors((-1, -2, 3), return_obj_type="Coords"), (HexCoords(0, -2, 2), HexCoords(0,-3,3), HexCoords(-1,-3,4), HexCoords(-2,-2,4), HexCoords(-2,-1,3), HexCoords(-1,-1,2)))
+        self.assertEqual(hl.neighbors((2, 0, -2), return_obj_type="List"), ([3, 0, -3], [3, -1, -2], [2, -1, -1], [1, 0, -1], [1, 1, -2], [2, 1, -3]))
+        self.assertEqual(hl.neighbors((-1, 1, 0), return_obj_type="Dict"), {0:{"q":0, "r":1, "s":-1}, 1:{"q":0, "r":0, "s":0}, 2:{"q":-1, "r":0, "s":1}, 3:{"q":-2, "r":1, "s":1}, 4:{"q":-2, "r":2, "s":0}, 5:{"q":-1, "r":2, "s":-1}})
     
     def tearDown(self):
         del self.obj_0
@@ -955,6 +1058,9 @@ class TestInRange(unittest.TestCase):
         self.assertEqual(hl.in_range((1, -2, 1), 1), {(2, -2, 0), (0, -1, 1), (1, -2, 1), (1, -3, 2), (2, -3, 1), (1, -1, 0), (0, -2, 2)})
         self.assertEqual(hl.in_range(HexCoords(-1, 0, 1), 3), {(-1, -3, 4), (0, -1, 1), (-1, -1, 2), (-2, 1, 1), (-2, 3, -1), (-1, 3, -2), (1, -2, 1), (-4, 2, 2), (-3, 0, 3), (2, -1, -1), (-2, 0, 2), (0, 2, -2), (-4, 1, 3), (1, 0, -1), (2, 0, -2), (0, -3, 3), (-2, -2, 4), (1, -3, 2), (-4, 0, 4), (-1, 1, 0), (1, -1, 0), (2, -2, 0), (-1, 0, 1), (-1, 2, -1), (0, 0, 0), (2, -3, 1), (-2, -1, 3), (-1, -2, 3), (0, 1, -1), (0, -2, 2), (-3, -1, 4), (-3, 3, 0), (-2, 2, 0), (-4, 3, 1), (1, 1, -2), (-3, 1, 2), (-3, 2, 1)})
         self.assertEqual(hl.in_range(self.obj_2, 2), {(2, 1, -3), (0, -1, 1), (-2, 1, 1), (-2, 3, -1), (-1, 3, -2), (0, 3, -3), (2, -1, -1), (0, 2, -2), (1, 0, -1), (2, 0, -2), (-1, 1, 0), (1, -1, 0), (-1, 0, 1), (-1, 2, -1), (0, 0, 0), (0, 1, -1), (1, 2, -3), (-2, 2, 0), (1, 1, -2)})
+        self.assertEqual(hl.in_range((0,0,0), 1, return_obj_type="Coords"), {HexCoords(-1, 0, 1), HexCoords(0, -1, 1), HexCoords(1, 0, -1), HexCoords(0, 0, 0), HexCoords(-1, 1, 0), HexCoords(1, -1, 0), HexCoords(0, 1, -1)})
+        self.assertEqual(hl.in_range((3,0,-3), 1, return_obj_type="List"), [[2, 0, -2], [2, 1, -3], [3, -1, -2], [3, 0, -3], [3, 1, -4], [4, -1, -3], [4, 0, -4]])
+        self.assertEqual(hl.in_range((-3,3,0), 1, return_obj_type="Dict"), [{"q":-4, "r":3, "s":1}, {"q":-4, "r":4, "s":0}, {"q":-3, "r":2, "s":1}, {"q":-3, "r":3, "s":0}, {"q":-3, "r":4, "s":-1}, {"q":-2, "r":2, "s":0}, {"q":-2, "r":3, "s":-1}])
         
     def tearDown(self):
         del self.obj_0
@@ -1025,6 +1131,10 @@ class TestLineDraw(unittest.TestCase):
         self.assertEqual(hl.line_draw(self.obj_5, (1, 1, -2)), ((-1, -1, 2), (0, -1, 1), (0, 0, 0), (0, 1, -1), (1, 1, -2)))
         self.assertEqual(hl.line_draw(self.obj_6, HexCoords(0, 2, -2)), ((2, -3, 1), (2, -2, 0), (1, -1, 0), (1, 0, -1), (0, 1, -1), (0, 2, -2)))
         self.assertEqual(hl.line_draw(self.obj_7, self.obj_3), ((-2, 1, 1), (-1, 1, 0), (0, 0, 0), (1, 0, -1), (2, 0, -2)))
+        # return coordinates are HexCoords, List or Dictionary -------------- #
+        self.assertEqual(hl.line_draw((0, 3, -3), (2, 0, -2), return_obj_type="List"), ([0, 3, -3], [1, 2, -3], [1, 1, -2], [2, 0, -2]))
+        self.assertEqual(hl.line_draw((0, 3, -3), (2, 0, -2), return_obj_type="Coords"), (HexCoords(0, 3, -3), HexCoords(1, 2, -3), HexCoords(1, 1, -2), HexCoords(2, 0, -2)))
+        self.assertEqual(hl.line_draw((0, 3, -3), (2, 0, -2), return_obj_type="Dict"), ({"q":0, "r":3, "s":-3}, {"q":1, "r":2, "s":-3}, {"q":1, "r":1, "s":-2}, {"q":2, "r":0, "s":-2}))
         
     def tearDown(self):
         del self.obj_0

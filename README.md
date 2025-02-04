@@ -10,8 +10,8 @@
 
 
 HexLogic aims to be a Python package, without dependencies outside of the 
-built-in library, providing fully documented functions to deal with the 
-relations between objects on a hexagon tiled grid. Including conversion from 
+built-in library, providing fully documented classes and functions to deal with 
+the relations between objects on a hexagon tiled grid. Including conversion from 
 „hexagonal“ to „pixel“ coordinates and pathfinding with varying movement cost. 
 As well as various operations like line-drawing.
 
@@ -38,7 +38,7 @@ the following features:
 
 
 ## Prerequisites
- - Python 3.9 or newer
+ - Python 3.10 or newer
 
 
 ## Installation
@@ -185,7 +185,7 @@ List of issues to be solved before the package will be released at version 1.0
 
 * [x] eliminate dependency on NumPy and Pandas, by replacing the interim solution for graph matrix storage with built-in types
 * [ ] add example.py
-* [ ] identify and test for edge cases
+* [x] ~~identify and test for edge cases~~
 * [ ] modify round_container to work for infinitely nested containers
 * [x] add a set ~~that is ?automatically? updated~~, containing all coordinates which are linked in GraphMatrix
 * [ ] write a working testgrp_teardown
@@ -194,12 +194,15 @@ List of issues to be solved before the package will be released at version 1.0
 * [x] negative movement_cost for blocking movement instead of 0 ?
 * [ ] refactor code to be organized around one class handling all the logic affecting objects in passed container (like observer.py etc.), keep functions only implementation ???
 * [ ] find out why and fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
-* [ ] add a raise error, if a goal or start is passed to pathfinding, which is inaccessible (has negative movement_cost)
+* [x] add ~~a raise error, if a goal or start is passed to pathfinding, which is inaccessible (has negative movement_cost)~~ option to test accessibility
 * [x] add a "if not connected functionality" to pathfinding algorithms
 * [x] update TestTestgrpGenerator unittest, block_var to movement_cost
-* [ ] add a mechanic to GraphMatrix methods del_entry and update_entry that update GraphMatrix.matrix_coords
+* [x] add a mechanic to GraphMatrix methods del_entry and update_entry that update GraphMatrix.matrix_coords
 * [x] add List and Dictionary as a return option for functions, which offered only Tuple and RectCoords/HexCoords
-* [ ] update remaining unittests to test for dictionary and list outputs, as well as modified GraphMatrix pathfinding
+* [x] update remaining unittests to test for dictionary and list outputs, as well as modified GraphMatrix pathfinding
+* [ ] format text so it is displayed correctly in editors help function if possible
+* [x] ~~find a way around the unhashable type error for~~ in_range or just return as list or dict instead of set
+* [x] add missing GraphMatrix unittests
 
 
 ## References

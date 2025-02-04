@@ -1,8 +1,33 @@
+<!-- id='changelog-0.1'-->
+# 0.1 — 2025-02-04
+
+## Added
+
+- added missing unittests for list and dictionary returns
+- neighbors, in_range, line_draw and hex_in_range function optionally returns hexcoords, lists or a dictionary
+- GraphMatrix breadth_first_search, dijkstras_algorithm and a_star_algorithm optionally returns the path coordinates as hexcoords, lists or dictionaries
+- adddd a mechanic to GraphMatrix methods del_entry and update_entry that updates GraphMatrix.matrix_coords dictonary
+- added radian as output option for get_angle 
+
+## Changed
+
+- removed the arbitrary positional arguments (*) where applicable (don't know what I was thinking in the first place)
+
+## Fixed
+
+- fixed GraphMatrix.update_entry
+- fied GraphMatrix.del_entry
+- neighbors function description return statement corrected
+- added various missing parameter decriptions to docstrings
+- various spelling, grammar and content-related mistakes
+
 <!-- id='changelog-0.0.4'-->
 # 0.0.4 — 2024-05-11
 
 ## Added
 
+- added unittests for GraphMatrix.update_entry (only tests matrix_coords functionality)
+- added unittests for GraphMatrix.del_entry (only tests matrix_coords functionality)
 - added get_angle function, which calculates the angle from a line drawn from one point to another relative to the x-axis of a cartesian coordinate system
 - added unittests for get_angle function
 

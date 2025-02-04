@@ -2,16 +2,16 @@
 Created on Fri Sep  9 07:19:00 2022
 
 HexLogic aims to be a Python package, without dependencies outside of the 
-built-in library, providing fully-documented functions to deal with the relations 
-between objects on a hexagon tiled grid. Including conversion from „hexagonal“ to 
-„pixel“ coordinates and pathfinding with varying movement cost. As well as 
-various operations like line-drawing. It was originally part of a Pygame-CE 
-project I'm working on and is therefore primarily intended to position a 
-hexagon tiled map on a screen and deal with game mechanics related to this type 
-of grid.
+built-in library, providing fully-documented classes and functions to deal with 
+the relations between objects on a hexagon tiled grid. Including conversion 
+from „hexagonal“ to "pixel“ coordinates and pathfinding with varying movement cost. 
+As well as various operations like line-drawing. It was originally part of 
+a Pygame-CE project I'm working on and is therefore primarily intended to 
+position a hexagon tiled map on a screen and deal with game mechanics related 
+to this type of grid.
 
 These functions assume you're using objects to represent tiles, units, items, 
-etc on a map that is made up of hexagonal shaped tiles, with a flat side as top.
+etc. on a map that is made up of hexagonally shaped tiles, with a flat side as top.
 It furthermore assumes you're using a 3-dimensional cartesian coordinate system,
 that assigns the coordinates along axis parallel to the orientation of the sides
 of each hexagon. Like in the example given below. When using Pygame-CE it is 
@@ -33,19 +33,23 @@ set to (255, 0, 255). Currently the package does not support drawing hexagons.
 Contains all hextile logic, specified as logic handling the relationship 
 between cartesian coordinates and cube coordinates, for the purpose of defining 
 the relative position of hexagon tiles on the screen. In addition it provides
-calculations in regards to hextile map related formulas and algorithms.
+functions in regards to hextile map related formulas and algorithms, like 
+angles needed for animations or algorithms for searching a tree data structure 
+for pathfinding.
 
 The functions are designed to catch divergence from the desired input as early 
 as possible, this might be considered "unpythonic" by some, but given the scope 
 of even a simple game, I found this to be my personal preference. A keywordargument 
-will be added in the future to switch between current and a more pythonic functionality.
+will be added in the future to switch between current and a more pythonic functionality. 
+Currently the simplified hexagonal coordinates are not supported out of personal 
+preference.
 
 
 Dependencies:
 -------------
 collections.namedtuple
     Provides a new tuple subclass. The new subclass is used to create tuple-like 
-    objects that have fields accessible by attribute lookup as well as being 
+    objects that have fields accessible by attribute lookup, as well as being 
     indexable and iterable.
     
 math
@@ -54,7 +58,7 @@ math
     
     
 unittest
-    The unittest unit testing framework supports test automation sharing of 
+    The unittest unit testing framework supports test automation, sharing of 
     setup and shutdown code for tests, aggregation of tests into collections,
     and independence of the tests from the reporting framework.
 
@@ -76,66 +80,67 @@ HexCoords(namedtuple("HexCoords", "q r s")):
     
 GraphMatrix(tile_grp:set|list):
     Creates a GraphMatrix Object, containing a directed, weighted graph, from the 
-    Objects or coordinates contained in tile_grp, organized in a Dictionary, as 
-    well as a Set containing all connected coordinates.
+    Objects or coordinates contained in tile_grp, which is a container, organized 
+    in a Dictionary, mapping the traversability with movement cost, as well as 
+    a Set containing all connected coordinates.
     
     
 Functions:
 ----------
 float_to_int(num_in:int|float) -> int|float:
     Returns an Integer if passed an Integer or if passed a Float with its
-    decimal being zero. Returns a Float if passed a Float, with a non zero
-    decimal.
+    decimal places being zero. Returns a Float if passed a Float, with non zero
+    decimal places.
 
 container_or_object(container_or_object:object|tuple|RectCoords|HexCoords, 
-                expected_len:2|3, *, return_obj_type="Tuple") 
+                expected_len:2|3, return_obj_type:str="Tuple") 
                 -> tuple|RectCoords|HexCoords|list|dict:
     Returns a Tuple, Namedtuple, List or Dictionary of predefined length, 
-    when passed an Objector a Tuple.
+    when passed an Object or a Tuple.
 
 linint(a:int|float, b:int|float, t:int|float) -> int|float:
     Linear interpolation returns point at t of distance between a and b.
     
 rect_linint(xy_a:object|tuple|RectCoords, xy_b:object|tuple|RectCoords, 
-            t:int|float, *, return_obj_type="Tuple") -> tuple|RectCoords|list|dict:
+            t:int|float, return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
     Linear interpolation returns point at t of distance between a and b on
     a cartesian coordinates system.
     
 cube_linint(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords, 
-            t:int|float, *, return_obj_type="Tuple") -> tuple|HexCoords|list|dict:
+            t:int|float, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     Returns the hextile coordinates of a point situated at t part of the way 
     from obj_a to obj_b.
     
-round_container(container:dict|list|set|tuple|RectCoords, *,
+round_container(container:dict|list|set|tuple|RectCoords,
                 d:int=0) -> dict|list|set|tuple|RectCoords:
     Rounds each number in a container to the specified decimal, if None is 
     specified to the nearest Integer.
     
-round_hex(qrs:tuple|HexCoords, *, return_obj_type="Tuple") -> tuple|HexCoords|list|dict:
+round_hex(qrs:tuple|HexCoords|list, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     Rounds each of the coordinates to the nearest Integer.
     
-get_xy(obj:object, *, return_obj_type="Tuple") -> tuple|RectCoords|list|dict:
+get_xy(obj:object, return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
     Returns values of attributes x and y of obj as Tuple, RectCoords, List or Dictionary.
     
 set_xy(obj:object, x:int|float, y:int|float) -> None:
     Set x and y attribute of obj to specified values.
     
-get_qrs(obj:object, *, return_obj_type="Tuple") -> tuple|HexCoords|list|dict:
-    Returns values of attributes q, r, s of obj.
+get_qrs(obj:object, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
+    Returns values of attributes q, r and s of obj.
     
 set_qrs(obj:object, q:int|float, r:int|float, s:int|float) -> None:
-    Set q r and s attribute of obj to specified values.
+    Set q, r and s attribute of obj to specified values.
     
-hex_to_pixel(qrs:object|tuple|HexCoords, *, tile_width:int=64, tile_height:int=64, 
-             return_obj_type="Tuple") -> tuple|RectCoords|list|dict:
+hex_to_pixel(qrs:object|tuple|HexCoords, tile_width:int=64, tile_height:int=64, 
+             return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
     Converts cube coordinates to pixel coordinates.
     
-pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:int=64,
-             return_obj_type="Tuple") -> tuple|HexCoords|list|dict:
+pixel_to_hex(xy:object|tuple|RectCoords, tile_width:int=64, tile_height:int=64,
+             return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     Converts pixel coordinates to cube coordinates.
     
-neighbors(qrs:object|tuple|HexCoords) -> set:
-    Return a List of coordinates of neighboring hexagons.
+neighbors(qrs:object|tuple|HexCoords) -> set|dict:
+    Return a Set or Dictionary of coordinates of neighboring hexagons.
     
 distance(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> int|float:
     Returns distance from one Object to another in a cube coordinate system.
@@ -144,14 +149,15 @@ in_range(obj:object|tuple|HexCoords, n:int) -> set:
     Returns a Set containing the cube coordinates of every hexagon in 
     distance n from obj.
     
-line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tuple:
+line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords, return_obj_type:str="Tuple") -> tuple:
     Draws a line from one hexagon to another, returns a Tuple containing 
     the hexagons with the center closest to the line.
     
 dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set, 
-                        *, movement_var:str="movement_cost") -> set:
+                    movement_var:str="movement_cost") -> set:
     All cube coordinates within n distance from an Object, factoring in movement_var 
-    (variable if -1 blocks object traversability).
+    (variable if -1 blocks object traversability). Supports movement cost different
+    than 1.
 
 GraphMatrix.update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:
     Add or update a one-directional entry in the adjacency matrix.
@@ -160,21 +166,21 @@ GraphMatrix.del_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|t
     Delete a one-directional entry in the adjacency matrix. Does not raise an Error or Warning if no entry matching the input exists.
     
 GraphMatrix.connected(self, from_coord:object|tuple|HexCoords) -> set:
-    Return all connected coordinates. Returns None, in case of there aren't being any.
+    Return all connected coordinates. Returns None, in case of there not being any.
 
 GraphMatrix.get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float:
     Get the movement cost from one Object or coordinate to another.
 
 GraphMatrix.breadth_first_search(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                                 *, test_accessibility:bool=False) -> list:
+                                 test_accessibility:bool=False) -> list:
     Algorithm for searching a tree data structure for a node that satisfies a given property.
 
 GraphMatrix.dijkstras_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                                *, test_accessibility:bool=False) -> list:
+                                test_accessibility:bool=False) -> list:
     Supports weighted movement cost.
     
 GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
-                             *, test_accessibility:bool=False) -> list:
+                             test_accessibility:bool=False) -> list:
     Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
     
 
@@ -193,7 +199,7 @@ https://numpydoc.readthedocs.io/en/latest/format.html
 
 # import section ------------------------------------------------------------ #
 from collections import namedtuple
-from math import degrees, atan2
+from math import degrees, atan2, pi
 
 
 # custom datatypes to ensure constraints ------------------------------------ #
@@ -239,9 +245,9 @@ class RectCoords(namedtuple("RectCoords", "x y")):
 class HexCoords(namedtuple("HexCoords", "q r s")):
     """
     Coordinates in a three-dimensional cartesian coordinate system, limited by the 
-    constraint q + r + s = 0, to ensure a canonical coordinate on the plane drawn
-    by the constraint. Superclass Namedtuple is a fixed length structure with 
-    indices and named attributes.
+    constraint q+r+s=0, to ensure a canonical coordinate for each tile on the 
+    plane drawn by the constraint. Superclass Namedtuple is a fixed length 
+    structure with indices and named attributes.
     """
     def __new__(cls, q, r, s):
         if not isinstance(q, int|float):
@@ -254,7 +260,7 @@ class HexCoords(namedtuple("HexCoords", "q r s")):
             raise TypeError("Coordinate s needs to be of type Integer or Float.")
             
         if (q + r + s) != 0:
-            raise ConstraintViolation("""Constraint q + r + s = 0, ensures that 
+            raise ConstraintViolation("""Constraint q+r+s=0, ensures that 
                                       there is one canonical coordinate for the 
                                       relative position of a hexagontile on the 
                                       plane being drawn by the constraint""")
@@ -271,7 +277,7 @@ class GraphMatrix:
         
     Parameters:
     -----------
-    tile_grp : List | Set | SpriteGroup
+    tile_grp : List | Set | SpriteGroup(Pygame-CE)
         A container containing Objects adjacent to each other in a cube 
         coordinate system (tiles in tilemap). The hexagonal coordinates need to 
         be stored in q, r and s coordinates and they must adhere to the zero 
@@ -338,14 +344,13 @@ class GraphMatrix:
         edges = set()
         
         for tile in tile_grp:
-            tile_qrs = container_or_object(tile, 3, return_obj_type="Tuple")
+            tile_qrs = container_or_object(tile, 3)
             t_nbors_tuple = neighbors((tile_qrs[0], tile_qrs[1], tile_qrs[2]))
             for nbor in t_nbors_tuple:
-                nbor_qrs = (nbor[0], nbor[1], nbor[2])
                 for t in tile_grp:
-                    t_coords = container_or_object(t, 3, return_obj_type="Tuple")
-                    if t_coords[0] == nbor[0] and t_coords[1] == nbor[1] and t_coords[2] == nbor[2]:
-                        edges.add((tile_qrs, nbor_qrs, tile.movement_cost, t.movement_cost))
+                    t_coords = container_or_object(t, 3)
+                    if t_coords == nbor:
+                        edges.add((tile_qrs, nbor, tile.movement_cost, t.movement_cost))
                         
         for edge in edges:
             # movement_cost defined by the tile moved onto ------------------ #
@@ -373,10 +378,17 @@ class GraphMatrix:
         """
         from_c = container_or_object(from_coord, 3)
         to_c = container_or_object(to_coord, 3)
-        if self.matrix_dict[from_c]:
+        if from_c in self.matrix_dict.keys():
             self.matrix_dict[from_c].update({to_c:movement_cost})
         else:
             self.matrix_dict.update({from_c:{to_c:movement_cost}})
+            
+        # add from_c and to_c to self.matrix_coords if missing -------------- #
+        if from_c not in self.matrix_coords:
+            self.matrix_coords.add(from_c) 
+            
+        if to_c not in self.matrix_coords:
+            self.matrix_coords.add(from_c) 
         
         
     def del_entry(self, from_coord:object|tuple|HexCoords, 
@@ -387,15 +399,30 @@ class GraphMatrix:
         """
         from_c = container_or_object(from_coord, 3)
         to_c = container_or_object(to_coord, 3)
-        if self.matrix_dict[from_c][to_c]:
-            del self.matrix_dict[from_c][to_c]
-        if not self.matrix_dict[from_c]:
+        if from_c in self.matrix_dict.keys():
+            if to_c in self.matrix_dict[from_c].keys():
+                del self.matrix_dict[from_c][to_c]
+        if from_c in self.matrix_dict.keys():
             del self.matrix_dict[from_c]
             
+        # del from_c or to_c from self.matrix_coords if not connected anymore #
+        destinations = list()
+        
+        for k,v in self.matrix_dict.items():
+            for l,w in v.items():
+                destinations.append(l)
+        
+        if from_c not in self.matrix_dict and from_c not in destinations:
+            print("from_c not in self.matrix_coords and from_c not in destinations")
+            self.matrix_coords.remove(from_c)
+            
+        if to_c not in self.matrix_dict and to_c not in destinations:
+            print("to_c not in self.matrix_coords and to_c not in destinations")
+            self.matrix_coords.remove(to_c)
             
     def connected(self, from_coord:object|tuple|HexCoords) -> set:
         """
-        Return all connected coordinates. Returns None, in case of there aren't 
+        Return all connected coordinates. Returns None, in case of there not 
         being any.
         """
         from_c = container_or_object(from_coord, 3)
@@ -423,7 +450,8 @@ class GraphMatrix:
     
     
     # graph based path finding algorithms ----------------------------------- #
-    def breadth_first_search(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, *, test_accessibility:bool=False) -> list:
+    def breadth_first_search(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
+                             test_accessibility:bool=False, return_obj_type:str="Tuple") -> list:
         """
         Algorithm for searching a tree data structure for a node that satisfies a 
         given property. It starts at the tree root and explores all nodes at the 
@@ -445,6 +473,13 @@ class GraphMatrix:
             If True, tests if start and goal are connected to other tiles,
             this is to minimize the likelihood of running a pathfinding algorithm,
             that either returns an invalid path or no path.
+            
+        return_obj_type : String, optional
+            If 'Coords', returns the path as a list containing RectCoords(Namedtuple) 
+            or HexCoords(Namedtuple), if 'Tuple' or not defined as containing 
+            Tuples of shape (q, r, s), if 'List' as containing Lists of length 3 
+            and if 'Dict' returns the path as a list containing Dictionaries, 
+            with the axis as keys. {"q":q, "r":r, "s":s}
         
         Raises:
         -------
@@ -462,8 +497,8 @@ class GraphMatrix:
         --------
         path(List): A List containing all tiles from start to goal coordinate.
         """
-        start = container_or_object(start, 3, return_obj_type="Tuple")
-        goal = container_or_object(goal, 3, return_obj_type="Tuple")
+        start = container_or_object(start, 3)
+        goal = container_or_object(goal, 3)
         
         # test accessibility ------------------------------------------------ #
         if test_accessibility:
@@ -502,10 +537,18 @@ class GraphMatrix:
         path.append(start)
         path.reverse()
         
-        return path
+        if return_obj_type.lower() == "tuple":
+            return path
+        if return_obj_type.lower() == "coords":
+            return [HexCoords(item[0], item[1], item[2]) for item in path]
+        if return_obj_type.lower() == "list":
+            return [[item[0], item[1], item[2]] for item in path]
+        if return_obj_type.lower() == "dict":
+            return [{"q":item[0], "r":item[1], "s":item[2]} for item in path]
 
 
-    def dijkstras_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, *, test_accessibility:bool=False) -> list:
+    def dijkstras_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
+                            test_accessibility:bool=False, return_obj_type:str="Tuple") -> list:
         """
         Algorithm for searching a tree data structure for a node that satisfies a 
         given property. It starts at the tree root and explores all nodes at the 
@@ -528,6 +571,13 @@ class GraphMatrix:
             If True, tests if start and goal are connected to other tiles,
             this is to minimize the likelihood of running a pathfinding algorithm,
             that either returns an invalid path or no path.
+            
+        return_obj_type : String, optional
+            If 'Coords', returns the path as a list containing RectCoords(Namedtuple) 
+            or HexCoords(Namedtuple), if 'Tuple' or not defined as containing 
+            Tuples of shape (q, r, s), if 'List' as containing Lists of length 3 
+            and if 'Dict' returns the path as a list containing Dictionaries, 
+            with the axis as keys. {"q":q, "r":r, "s":s}
         
         Raises:
         -------
@@ -545,8 +595,8 @@ class GraphMatrix:
         --------
         path(List): A List containing all tiles from start to goal coordinate.
         """
-        start = container_or_object(start, 3, return_obj_type="Tuple")
-        goal = container_or_object(goal, 3, return_obj_type="Tuple")
+        start = container_or_object(start, 3)
+        goal = container_or_object(goal, 3)
         
         # test accessibility ------------------------------------------------ #
         if test_accessibility:
@@ -560,11 +610,11 @@ class GraphMatrix:
         came_from[start] = None
         cost_so_far[start] = 0
         
-        # while not all tiles have been procesed, pop first tile from list -- #
+        # while not all tiles have been processed, pop first tile from list - #
         while frontier:
             current = frontier.pop(0)
             
-            # if current qrs_coords equal goal coords, break out of loop ---- #
+            # if current qrs_coords equal to goal coords, break out of loop - #
             if current[0] == goal:
                 break
             # else execute loop --------------------------------------------- #
@@ -591,10 +641,18 @@ class GraphMatrix:
         path.append(start)
         path.reverse()
         
-        return path
+        if return_obj_type.lower() == "tuple":
+            return path
+        if return_obj_type.lower() == "coords":
+            return [HexCoords(item[0], item[1], item[2]) for item in path]
+        if return_obj_type.lower() == "list":
+            return [[item[0], item[1], item[2]] for item in path]
+        if return_obj_type.lower() == "dict":
+            return [{"q":item[0], "r":item[1], "s":item[2]} for item in path]
                    
 
-    def a_star_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, *, test_accessibility:bool=False) -> list:
+    def a_star_algorithm(self, start:object|tuple|HexCoords, goal:object|tuple|HexCoords, 
+                         test_accessibility:bool=False, return_obj_type:str="Tuple") -> list:
         """
         Modified version of Dijkstra’s Algorithm that is optimized for a single 
         destination. It prioritizes paths that seem to be leading closer to a goal.
@@ -616,6 +674,13 @@ class GraphMatrix:
             this is to minimize the likelihood of running a pathfinding algorithm,
             that either returns an invalid path or no path.
             
+        return_obj_type : String, optional
+            If 'Coords', returns the path as a list containing RectCoords(Namedtuple) 
+            or HexCoords(Namedtuple), if 'Tuple' or not defined as containing 
+            Tuples of shape (q, r, s), if 'List' as containing Lists of length 3 
+            and if 'Dict' returns the path as a list containing Dictionaries, 
+            with the axis as keys. {"q":q, "r":r, "s":s}
+            
         Raises:
         -------
         TypeError: 
@@ -632,8 +697,8 @@ class GraphMatrix:
         --------
         path(List): A List containing all tiles from start to goal coordinate.
         """
-        start = container_or_object(start, 3, return_obj_type="Tuple")
-        goal = container_or_object(goal, 3, return_obj_type="Tuple")
+        start = container_or_object(start, 3)
+        goal = container_or_object(goal, 3)
         
         # test accessibility ------------------------------------------------ #
         if test_accessibility:
@@ -647,7 +712,7 @@ class GraphMatrix:
         came_from[start] = None
         cost_so_far[start] = 0
         
-        # while not all tiles have been procesed, pop first tile from list -- #
+        # while not all tiles have been processed, pop first tile from list - #
         while frontier:
             current = frontier.pop(0)
             
@@ -679,7 +744,14 @@ class GraphMatrix:
         path.append(start)
         path.reverse()
         
-        return path
+        if return_obj_type.lower() == "tuple":
+            return path
+        if return_obj_type.lower() == "coords":
+            return [HexCoords(item[0], item[1], item[2]) for item in path]
+        if return_obj_type.lower() == "list":
+            return [[item[0], item[1], item[2]] for item in path]
+        if return_obj_type.lower() == "dict":
+            return [{"q":item[0], "r":item[1], "s":item[2]} for item in path]
                
 
 # helper functions ---------------------------------------------------------- #
@@ -714,7 +786,7 @@ def float_to_int(num_in:int|float) -> int|float:
 
 
 def container_or_object(container_or_object:object|tuple|RectCoords|HexCoords|list|dict, 
-                    expected_len:2|3, *, return_obj_type:str="Tuple") -> tuple|RectCoords|HexCoords|list|dict:
+                    expected_len:2|3, return_obj_type:str="Tuple") -> tuple|RectCoords|HexCoords|list|dict:
     """
     Returns a Tuple or a Namedtuple of predefined length, when passed an Object
     or a Tuple. Tests whether the Tuple is of the desired length and/or if the 
@@ -862,7 +934,7 @@ def linint(a:int|float, b:int|float, t:int|float) -> int|float:
     
     
 def rect_linint(xy_a:object|tuple|RectCoords, xy_b:object|tuple|RectCoords, 
-                t:int|float, *, return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
+                t:int|float, return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
     """
     Linear interpolation returns point at t distance between a and b in
     a rectangular cartesian coordinates system. x and y representing the 
@@ -923,7 +995,7 @@ def rect_linint(xy_a:object|tuple|RectCoords, xy_b:object|tuple|RectCoords,
     
 
 def cube_linint(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords, 
-                t:int|float, *, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
+                t:int|float, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     """
     Returns the hextile coordinates of a point situated at t part of the way 
     from obj_a to obj_b.
@@ -991,7 +1063,7 @@ def cube_linint(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords,
     return linint_coords
 
 
-def round_container(container:dict|list|set|tuple|RectCoords, *,
+def round_container(container:dict|list|set|tuple|RectCoords,
                 d:int=0) -> dict|list|set|tuple|RectCoords:
     """
     Rounds each number in a container to the specified decimal, if None is 
@@ -1047,19 +1119,19 @@ def round_container(container:dict|list|set|tuple|RectCoords, *,
                         container, Dict, List, Set or Tuple or a childclass""")
         
 
-def round_hex(qrs:tuple|HexCoords, *, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
+def round_hex(qrs:tuple|HexCoords, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     """
     Rounds each of the coordinates to the nearest Integer. 
         
     Parameters:
     -----------
-    qrs : Tuple | HexCoords
+    qrs : Tuple | HexCoords | List
         A Tuple or a Namedtuple containing 3 real numerical values.
         
     return_obj_type : String, optional
-        If 'Coords', returns the rect_linint as HexCoords(Namedtuple), if 
-        'Tuple' as a Tuple of shape (q, r, s), if 'List' as a List of length 3 and 
-        if 'Dict' returns a Dictionary, with the axis as keys.
+        If 'Coords', returns the rounded coordinates as HexCoords(Namedtuple), 
+        if 'Tuple' as a Tuple of shape (q, r, s), if 'List' as a List of 
+        length 3 and if 'Dict' returns a Dictionary, with the axis as keys.
         
     Raises:
     -------
@@ -1074,7 +1146,16 @@ def round_hex(qrs:tuple|HexCoords, *, return_obj_type:str="Tuple") -> tuple|HexC
     rounded_qrs(Tuple|RectCoords|List|Dictionary): 
         The input Tuple, each element rounded to the nearest Integer. 
     """
-    q_f, r_f, s_f = qrs
+    if isinstance(qrs, dict):
+        q_f = qrs["q"]
+        r_f = qrs["r"]
+        s_f = qrs["s"]
+    elif isinstance(qrs, tuple|list):
+        q_f, r_f, s_f = qrs
+    else:
+        raise TypeError("""qrs needs to be a tuple or list of length 3, or a 
+                        dictionary having q, r and s as a key, the values being
+                        of type Integer or Float""")
         
     q = round(q_f)
     r = round(r_f)
@@ -1103,7 +1184,7 @@ def round_hex(qrs:tuple|HexCoords, *, return_obj_type:str="Tuple") -> tuple|HexC
     return rounded_qrs
 
 
-def get_xy(obj:object, *, return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
+def get_xy(obj:object, return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
     """
     Returns values of attributes x and y of obj as Tuple, RectCoords, List or Dictionary.
     
@@ -1113,9 +1194,9 @@ def get_xy(obj:object, *, return_obj_type:str="Tuple") -> tuple|RectCoords|list|
         An Object having attributes x and y, values being Integer or Float.
         
     return_obj_type : String, optional
-        If 'Coords', returns the rect_linint as RectCoords(Namedtuple), if 
-        'Tuple' as a Tuple of shape (x, y), if 'List' as a List of length 2 and 
-        if 'Dict' returns a Dictionary, with the axis as keys.
+        If 'Coords', returns xy as RectCoords(Namedtuple), if 'Tuple' as a 
+        Tuple of shape (x, y), if 'List' as a List of length 2 and if 'Dict' 
+        returns a Dictionary, with the axis as keys.
         
     Raises:
     -------
@@ -1184,14 +1265,14 @@ def set_xy(obj:object, x:int|float, y:int|float) -> None:
     setattr(obj, "y", y)
         
     
-def get_qrs(obj:object, *, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
+def get_qrs(obj:object, return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     """
-    Returns values of attributes q, r and s of obj as Tuple.
+    Returns values of attributes q, r and s of obj as Tuple, RectCoords, List or Dictionary.
         
     Parameters:
     -----------
     obj : object
-        An Object having attributes q, r, s, values being Integer or Float. If 
+        An Object having attributes q, r and s, values being Integer or Float. If 
         set to return HexCoords, needs to adhere to zero constraint.
         
     return_obj_type : String, optional
@@ -1201,6 +1282,9 @@ def get_qrs(obj:object, *, return_obj_type:str="Tuple") -> tuple|HexCoords|list|
         
     Raises:
     -------
+    TypeError:
+        If q, r or s is not an Integer or Float.
+    
     AttributeError: 
         If obj is missing q, r or s as attribute.
     
@@ -1210,12 +1294,20 @@ def get_qrs(obj:object, *, return_obj_type:str="Tuple") -> tuple|HexCoords|list|
     Returns:
     --------
     qrs(Tuple|HexCoords|List|Dictionary): 
-        The values of attributes q, r, s of obj as Tuple or NamedTuple.
+        The values of attributes q, r, s of obj as Tuple, RectCoords, List or Dictionary.
     """
-
     q = getattr(obj, "q")
     r = getattr(obj, "r")
     s = getattr(obj, "s")
+    
+    if not isinstance(q, int|float):
+        raise TypeError("obj returned a different type than Integer or Float as value for q")
+        
+    if not isinstance(r, int|float):
+        raise TypeError("obj returned a different type than Integer or Float as value for r")
+        
+    if not isinstance(s, int|float):
+        raise TypeError("obj returned a different type than Integer or Float as value for s")
             
     if return_obj_type.lower() == "tuple":
         qrs = (q, r, s)
@@ -1271,7 +1363,7 @@ def set_qrs(obj:object, q:int|float, r:int|float, s:int|float) -> None:
     setattr(obj, "s", s)
     
 
-def hex_to_pixel(qrs:object|tuple|HexCoords, *, tile_width:int=64, tile_height:int=64, 
+def hex_to_pixel(qrs:object|tuple|HexCoords, tile_width:int=64, tile_height:int=64, 
                  return_obj_type:str="Tuple") -> tuple|RectCoords|list|dict:
     """
     Converts cube coordinates to pixel coordinates. 
@@ -1297,7 +1389,7 @@ def hex_to_pixel(qrs:object|tuple|HexCoords, *, tile_width:int=64, tile_height:i
     Raises:
     -------
     TypeError: 
-        If x, y, q, r or s is not an Integer or a Float. If a passed Tuple has
+        If q, r or s is not an Integer or a Float. If a passed Tuple has
         too many or too few individual values.
         
     AttributeError: 
@@ -1306,7 +1398,7 @@ def hex_to_pixel(qrs:object|tuple|HexCoords, *, tile_width:int=64, tile_height:i
         
     ConstraintViolation: 
         If the selected coordinate system is 3-dimensional, but the 
-        q + r + s = 0 constraint is violated.
+        q+r+s=0 constraint is violated.
         
     Returns:
     --------
@@ -1334,7 +1426,7 @@ def hex_to_pixel(qrs:object|tuple|HexCoords, *, tile_width:int=64, tile_height:i
     return xy
     
 
-def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:int=64,
+def pixel_to_hex(xy:object|tuple|RectCoords, tile_width:int=64, tile_height:int=64,
                  return_obj_type:str="Tuple") -> tuple|HexCoords|list|dict:
     """
     Converts pixel coordinates to cube coordinates.
@@ -1342,9 +1434,9 @@ def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:i
     Parameters:
     -----------
     xy : Object | Tuple | RectCoords
-        A Tuple consisting of an Integer or Float for the q, r and s value,
-        or an Object having a q, r and s attribute, the assigned values being 
-        an Integer or Float. Needs to adhere to zero constraint.
+        A Tuple consisting of an Integer or Float for the x and y value,
+        or an Object having a x and y attribute, the assigned values being 
+        an Integer or Float.
         
     tile_width : Integer, optional
         Specifies the width of a hexagon tile in pixel.
@@ -1353,7 +1445,7 @@ def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:i
         Specifies the height of a hexagon tile in pixel.
     
     return_obj_type : String, optional
-        If 'Coords', returns the rect_linint as HexCoords(Namedtuple), if 
+        If 'Coords', returns the coordinates as HexCoords(Namedtuple), if 
         'Tuple' as a Tuple of shape (q, r, s), if 'List' as a List of length 3 
         and if 'Dict' returns a Dictionary, with the axis as keys.
         
@@ -1391,12 +1483,12 @@ def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:i
     return qrs
 
     
-def get_angle(obj_a:object|tuple|RectCoords|HexCoords, obj_b:object|tuple|RectCoords|HexCoords, *, 
-              expected_len_a:int=3, expected_len_b:int=3) -> float:
+def get_angle(obj_a:object|tuple|RectCoords|HexCoords, obj_b:object|tuple|RectCoords|HexCoords, 
+              expected_len_a:int=3, expected_len_b:int=3, unit:str="deg") -> float:
     """
-    Returns the angle in degrees from a line through obj_a and abj_b relative to 
+    Returns the angle in degrees from a line through obj_a and obj_b relative to 
     the x-axis of a two dimensional cartesian coordinate system. On a screen, 
-    because of the relativ to normal, inverted y-Axis, the angle is clockwise.
+    because of the downwards oriented y-Axis, the angle is clockwise.
     
     Parameters:
     -----------
@@ -1407,9 +1499,21 @@ def get_angle(obj_a:object|tuple|RectCoords|HexCoords, obj_b:object|tuple|RectCo
             zero constraint.
             
     obj_b : Object | Tuple | HexCoords
-            A Tuple consisting of an Integer or Float for the q, r and s value,
-            or an Object having a q, r and s attribute, the assigned values being an 
-            Integer or Float. Needs to adhere to zero constraint.
+            A Tuple consisting of an Integer or Float for the x and y or q, r 
+            and s value, or an Object having a q, r and s attribute, the assigned 
+            values being an Integer or Float. Needs to adhere to zero constraint.
+            
+    expected_len_a : 2 | 3
+            Integer for the number of axis of the cartesian coordinate system 
+            for obj_a, in case of 3, q+r+s=0, constraint is enforced.
+    
+    expected_len_b : 2 | 3
+            Integer for the number of axis of the cartesian coordinate system 
+            for obj_b, in case of 3, q+r+s=0, constraint is enforced.
+            
+    unit : Rad | Deg
+            Which unit of measurement to return the angle in, Rad for Radians or
+            Deg for Degrees.
             
     Raises:
     -------
@@ -1418,10 +1522,11 @@ def get_angle(obj_a:object|tuple|RectCoords|HexCoords, obj_b:object|tuple|RectCo
         or a Float. If a passed Tuple has too many or too few individual values.
         
     AttributeError: 
-        If an Object is passed, but is missing the x, y or q, r or s coordinate attributes.
+        If an Object is passed, but is missing the x and y or q, r and s coordinate 
+        attributes.
         
     ConstraintViolation: 
-        If the q + r + s = 0 constraint is violated.
+        If the q+r+s=0 constraint is violated.
         
     Returns:
     --------
@@ -1440,15 +1545,21 @@ def get_angle(obj_a:object|tuple|RectCoords|HexCoords, obj_b:object|tuple|RectCo
         
     angle = atan2(b[1]-a[1], b[0]-a[0])
     
-    if angle < 0:
-        return 360 + degrees(angle) 
-    else:
-        return degrees(angle) 
+    if unit.lower() == "deg":
+        if angle < 0:
+            return 360 + degrees(angle) 
+        else:
+            return degrees(angle)
+        
+    elif unit.lower() == "rad":
+        if angle < 0:
+            return 2*pi + angle
+        else:
+            return angle
 
-
-def neighbors(qrs:object|tuple|HexCoords) -> set:
+def neighbors(qrs:object|tuple|HexCoords, return_obj_type:str="Tuple") -> set:
     """
-    Returns a Tuple of coordinates of neighboring hexagons.
+    Returns a Tuple containing the coordinates of neighboring hexagons.
         
     Parameters:
     -----------
@@ -1456,6 +1567,11 @@ def neighbors(qrs:object|tuple|HexCoords) -> set:
         A Tuple consisting of an Integer or Float for the q, r and s value,
         or an Object having a q, r and s attribute, the assigned values being an 
         Integer or Float. Needs to adhere to zero constraint.
+        
+    return_obj_type : String
+        If 'Coords', returns the coordinates as HexCoords(Namedtuple), if 
+        'Tuple' as a Tuple of shape (q, r, s), if 'List' as a List of length 3 
+        and if 'Dict' returns a Dictionary, with the axis as keys.
         
     Raises:
     -------
@@ -1467,17 +1583,47 @@ def neighbors(qrs:object|tuple|HexCoords) -> set:
         If an Object is passed, but is missing the q, r or s coordinate attributes.
         
     ConstraintViolation: 
-        If the q + r + s = 0 constraint is violated.
+        If the q+r+s=0 constraint is violated.
         
     Returns:
     --------
-    nbors(Set): 
-        A Set containing all cube coordinates neighboring the input Object
+    nbors(Tuple|HexCoords|List|Dictionary): 
+        A Tuple containing all cube coordinates neighboring the input Object
         or Tuple.
     """
     q, r, s = container_or_object(qrs, 3)
     
-    nbors = ((q+1,r,s-1), (q+1,r-1,s), (q,r-1,s+1), (q-1,r,s+1), (q-1,r+1,s), (q,r+1,s-1))
+    if return_obj_type.lower() == "tuple":
+        nbors = ((q+1,r,s-1), 
+                 (q+1,r-1,s), 
+                 (q,r-1,s+1), 
+                 (q-1,r,s+1), 
+                 (q-1,r+1,s), 
+                 (q,r+1,s-1))
+        
+    elif return_obj_type.lower() == "coords":
+        nbors = (HexCoords(q+1,r,s-1), 
+                 HexCoords(q+1,r-1,s), 
+                 HexCoords(q,r-1,s+1), 
+                 HexCoords(q-1,r,s+1), 
+                 HexCoords(q-1,r+1,s), 
+                 HexCoords(q,r+1,s-1))
+        
+    elif return_obj_type.lower() == "list":
+        nbors = ([q+1,r,s-1], 
+                 [q+1,r-1,s], 
+                 [q,r-1,s+1], 
+                 [q-1,r,s+1], 
+                 [q-1,r+1,s], 
+                 [q,r+1,s-1])
+        
+    elif return_obj_type.lower() == "dict":
+        nbors = {0:{"q":q+1, "r":r, "s":s-1}, 
+                 1:{"q":q+1, "r":r-1, "s":s}, 
+                 2:{"q":q, "r":r-1, "s":s+1}, 
+                 3:{"q":q-1, "r":r, "s":s+1}, 
+                 4:{"q":q-1, "r":r+1, "s":s}, 
+                 5:{"q":q, "r":r+1, "s":s-1}}
         
     return nbors
     
@@ -1508,7 +1654,7 @@ def distance(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> int|
         If an Object is passed, but is missing the q, r or s coordinate attributes.
         
     ConstraintViolation: 
-        If the q + r + s = 0 constraint is violated.
+        If the q+r+s=0 constraint is violated.
         
     Returns:
     --------
@@ -1525,7 +1671,7 @@ def distance(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> int|
     return ab_dist
     
 
-def in_range(obj:object|tuple|HexCoords, n:int) -> set:
+def in_range(obj:object|tuple|HexCoords, n:int, return_obj_type:str="Tuple") -> set:
     """
     Returns a Set containing the cube coordinates of every hexagon in distance 
     n from obj.
@@ -1540,6 +1686,11 @@ def in_range(obj:object|tuple|HexCoords, n:int) -> set:
     n : Integer
         An Integer limiting the distance to n moves from the obj.
         
+    return_obj_type : String, optional
+        If 'Coords', returns the coordinates in the set as HexCoords(Namedtuple), 
+        if 'Tuple' as a Tuple of shape (q, r, s), if 'List' as List of shape 
+        [q, r, s] and if 'Dict' in shape {"q":q, "r":r, "s":s}.
+        
     Raises:
     -------
     TypeError: 
@@ -1551,7 +1702,7 @@ def in_range(obj:object|tuple|HexCoords, n:int) -> set:
         attributes.
         
     ConstraintViolation: 
-        If the q + r + s = 0 constraint is violated.
+        If the q+r+s=0 constraint is violated.
         
     Returns:
     --------
@@ -1565,19 +1716,28 @@ def in_range(obj:object|tuple|HexCoords, n:int) -> set:
     elif isinstance(n, float):
         if not n.is_integer():
             raise TypeError("n needs to be an Integer, fractional distances not supported")
+            
+    rot = return_obj_type.lower()
 
-    hex_in_range = set()
+    hex_in_range = list()
         
     for q in range(-n, n+1):
         for r in range(-n, n+1):
             for s in range(-n, n+1):
                 if q + r + s == 0:
-                    hex_in_range.add((o_q+q, o_r+r, o_s+s))
+                    if rot == "tuple":
+                        hex_in_range.append((o_q+q, o_r+r, o_s+s))
+                    elif rot == "coords":
+                        hex_in_range.append(HexCoords(o_q+q, o_r+r, o_s+s))
+                    elif rot == "list":
+                        hex_in_range.append([o_q+q, o_r+r, o_s+s])
+                    elif rot == "dict":
+                        hex_in_range.append({"q":o_q+q, "r":o_r+r, "s":o_s+s})
                 
-    return hex_in_range
+    return set(hex_in_range) if rot == "tuple" or rot == "coords" else hex_in_range
     
 
-def line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tuple:
+def line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords, return_obj_type:str="Tuple") -> tuple:
     """
     Draws a line from one hexagon to another, returns a Tuple containing the 
     hexagons with the center closest to the line.
@@ -1593,6 +1753,11 @@ def line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tup
         A Tuple consisting of an Integer or Float for the q, r and s value,
         or an Object having a q, r and s attribute, the assigned values being 
         an Integer or Float. Needs to adhere to zero constraint.
+        
+    return_obj_type : String, optional
+        If 'Coords', returns the coordinates in the set as HexCoords(Namedtuple), 
+        if 'Tuple' as a Tuple of shape (q, r, s), if 'List' as List of shape 
+        [q, r, s] and if 'Dict' in shape {"q":q, "r":r, "s":s}.
         
     Raises:
     -------
@@ -1631,7 +1796,15 @@ def line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tup
             qrs_f = cube_linint(obj_a, obj_b, 0)
             
         item = round_hex(qrs_f)
-        hex_line_lst.append(item)
+        
+        if return_obj_type.lower() == "tuple":
+            hex_line_lst.append(item)
+        elif return_obj_type.lower() == "coords":
+            hex_line_lst.append(HexCoords(item[0], item[1], item[2]))
+        elif return_obj_type.lower() == "list":
+            hex_line_lst.append([item[0], item[1], item[2]])
+        elif return_obj_type.lower() == "dict":
+            hex_line_lst.append({"q":item[0], "r":item[1], "s":item[2]})
     
     hex_line_coords = tuple(hex_line_lst)
         
@@ -1639,7 +1812,7 @@ def line_draw(obj_a:object|tuple|HexCoords, obj_b:object|tuple|HexCoords) -> tup
     
 
 def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set, 
-                        *, movement_var:str="movement_cost") -> set:
+                        movement_var:str="movement_cost") -> set:
     """
     All cube coordinates within n distance from an Object, factoring in movement_var 
     (variable if -1 blocks object traversability).
@@ -1652,16 +1825,15 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
         an Integer or Float. Needs to adhere to zero constraint.
         
     n : Integer
-        The number of moves from start Object to fill.
+        The number of moves from start_obj Object to fill.
         
-    obj_grp : List | Set | SpriteGroup
+    obj_grp : List | Set | SpriteGroup(Pygame-CE)
         A container containing Objects in a cube coordinate system (tiles in tilemap).
         They need to adhere to the zero constraint.
         
     movement_var : String, optional
-        Variable name of the variable, that Objects in obj_grp should contain to, 
-        allow a block of object traversability. The movement is blocked if the 
-        movement cost is -1.
+        Variable name of the variable, which Objects in obj_grp have, that stores 
+        the movement cost. If the value is -1 the object is blocked.
         
     Raises:
     -------
@@ -1674,7 +1846,7 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
         If one of the Objects is missing an q, r or s attribute.
         
     ConstraintViolation: 
-        If the q + r + s = 0 constraint is violated.
+        If the q+r+s=0 constraint is violated.
         
     Returns:
     --------
@@ -1685,13 +1857,13 @@ def dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|se
     
     if not isinstance(n, int|float):
         raise TypeError("""n, representing the number of moves from the 
-                           start coordinates needs to be and Integer or a Float
+                           start coordinates, needs to be and Integer or a Float
                            without a fractal part.""")
     
     if isinstance(n, float):
         if not n.is_integer:
             raise TypeError("""n, representing the number of moves from the 
-                               start coordinates needs to be and Integer or a Float
+                               start coordinates, needs to be and Integer or a Float
                                without a fractal part.""")
                                
     for obj in obj_grp:
