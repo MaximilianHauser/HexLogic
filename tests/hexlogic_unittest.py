@@ -12,10 +12,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # imports from parent directory --------------------------------------------- #
-from src import hexlogic as hl
-from src.hexlogic import RectCoords as RectCoords
-from src.hexlogic import HexCoords as HexCoords
-from src.hexlogic import ConstraintViolation as ConstraintViolation
+from src.hexlogic import hexlogic as hl
+from src.hexlogic.hexlogic import RectCoords as RectCoords
+from src.hexlogic.hexlogic import HexCoords as HexCoords
+from src.hexlogic.hexlogic import ConstraintViolation as ConstraintViolation
 
 # built-in libraries -------------------------------------------------------- #
 import unittest

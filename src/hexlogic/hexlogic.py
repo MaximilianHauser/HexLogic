@@ -19,6 +19,8 @@ recommended to use square images and draw a hexagon on them. An example of a
 64x64 tile is provided, it's intended to be used with the transparency colorcode 
 set to (255, 0, 255). Currently the package does not support drawing hexagons.
 
+.. code-block::
+
       +s \        / -r
           \  _   /                   A: ( q=0, r=0, s=0 )
          _ / B \ _                   B: ( q=0, r=-1, s=1 )
@@ -29,6 +31,8 @@ set to (255, 0, 255). Currently the package does not support drawing hexagons.
            \ _ /                     G: ( q=-1, r=0, s=1 )
          /      \
      +r /        \ -s
+     
+
 
 Contains all hextile logic, specified as logic handling the relationship 
 between cartesian coordinates and cube coordinates, for the purpose of defining 
@@ -159,13 +163,13 @@ dist_lim_flood_fill(start_obj:object|tuple|HexCoords, n:int, obj_grp:list|set,
     (variable if -1 blocks object traversability). Supports movement cost different
     than 1.
 
-GraphMatrix.update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:
+GraphMatrix.update_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:  
     Add or update a one-directional entry in the adjacency matrix.
     
-GraphMatrix.del_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> None:
+GraphMatrix.del_entry(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> None:  
     Delete a one-directional entry in the adjacency matrix. Does not raise an Error or Warning if no entry matching the input exists.
     
-GraphMatrix.connected(self, from_coord:object|tuple|HexCoords) -> set:
+GraphMatrix.connected(self, from_coord:object|tuple|HexCoords) -> set:  
     Return all connected coordinates. Returns None, in case of there not being any.
 
 GraphMatrix.get_movement_cost(self, from_coord:object|tuple|HexCoords, to_coord:object|tuple|HexCoords) -> int|float:
@@ -184,16 +188,16 @@ GraphMatrix.a_star_algorithm(start:object|tuple|HexCoords, goal:object|tuple|Hex
     Modified version of Dijkstra’s Algorithm that is optimized for a single destination. It prioritizes paths that seem to be leading closer to a goal.
     
 
-@author: Maximilian Hauser
-@references: 
-redblobgames.com (Amit Patel):
-https://www.redblobgames.com/grids/hexagons/
-https://www.redblobgames.com/grids/hexagons/implementation.html
-https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py
-https://www.redblobgames.com/pathfinding/a-star/introduction.html
-https://www.redblobgames.com/pathfinding/a-star/implementation.html
-NumPy Style Guide:
-https://numpydoc.readthedocs.io/en/latest/format.html
+@author: Maximilian Hauser  
+@references:  
+redblobgames.com (Amit Patel):  
+https://www.redblobgames.com/grids/hexagons/  
+https://www.redblobgames.com/grids/hexagons/implementation.html  
+https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py  
+https://www.redblobgames.com/pathfinding/a-star/introduction.html  
+https://www.redblobgames.com/pathfinding/a-star/implementation.html  
+NumPy Style Guide:  
+https://numpydoc.readthedocs.io/en/latest/format.html  
 """
 
 

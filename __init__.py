@@ -5,7 +5,7 @@ Created on Sun Oct 15 21:19:20 2023
 @author: Maximilian Hauser
 """
 
-__version__ = "0.1"
+__version__ = "1.0"
 
 from hexlogic import RectCoords as RectCoords
 from hexlogic import HexCoords as HexCoords

@@ -1,3 +1,17 @@
+<!-- id='changelog-1.0'-->
+# 1.0 — 2025-??-??
+
+## Added
+ - example.py
+ 
+## Changed
+
+ - changed folder structure according to pypi packaging tutorial
+ 
+## Fixed
+
+ - line 107 and 108 in README.md, was still referring to an old version of the function
+
 <!-- id='changelog-0.1'-->
 # 0.1 — 2025-02-04
 

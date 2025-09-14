@@ -3,7 +3,7 @@
 
 
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/MaximilianHauser/HexLogic)
-![Static Badge](https://img.shields.io/badge/python-%3E3.9-blue)
+![Static Badge](https://img.shields.io/badge/python-%3E3.10-blue)
 ![GitHub](https://img.shields.io/github/license/MaximilianHauser/HexLogic)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hexlogic)
 
@@ -104,8 +104,8 @@ Functions and Methods:
 **float_to_int(num_in:int|float) -> int|float:**  
 Returns an Integer if passed an Integer or if passed a Float with its decimal being zero. Returns a Float if passed a Float, with a non zero decimal.
 
-**tuple_or_object(tuple_or_object:object|tuple|RectCoords|HexCoords, expected_len:2|3, return_coords_obj:bool=False) -> tuple|RectCoords|HexCoords:**  
-Returns a Tuple or a Namedtuple of predefined length, when passed an Object or a Tuple.
+**container_or_object(container_or_object:object|tuple|RectCoords|HexCoords, expected_len:2|3, return_obj_type:str="Tuple") -> tuple|RectCoords|HexCoords|list|dict:**
+Returns a Tuple, Namedtuple, List or Dictionary of predefined length, when passed an Object or a Tuple.
 
 **linint(a:int|float, b:int|float, t:int|float) -> int|float:**  
 Linear interpolation returns point at t of distance between a and b.
@@ -203,6 +203,9 @@ List of issues to be solved before the package will be released at version 1.0
 * [ ] format text so it is displayed correctly in editors help function if possible
 * [x] ~~find a way around the unhashable type error for~~ in_range or just return as list or dict instead of set
 * [x] add missing GraphMatrix unittests
+* [ ] fix invalid escape sequence printout for diagram at the head of example.py
+* [ ] breadth first search error: TypeError: argument of type 'NoneType' is not iterable
+* [ ] "from_c not in self.matrix_coords and from_c not in destinations" printout in console when running unittests
 
 
 ## References
