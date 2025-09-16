@@ -93,12 +93,12 @@ class TestTestgrpGenerator(unittest.TestCase):
 class TestRectCoords(unittest.TestCase):
     
     def setUp(self):
-        self.rc_test_obj_2 = hl.RectCoords(2, 5)
+        self.rc_test_obj_2 = RectCoords(2, 5)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            rc_test_obj_0 = hl.RectCoords("2", 5)
-            rc_test_obj_1 = hl.RectCoords(2, "5")
+            rc_test_obj_0 = RectCoords("2", 5)
+            rc_test_obj_1 = RectCoords(2, "5")
     
     def test_attributes(self):
         self.assertIs(self.rc_test_obj_2.x, 2)
@@ -112,16 +112,16 @@ class TestRectCoords(unittest.TestCase):
 class TestHexCoords(unittest.TestCase):
     
     def setUp(self):
-        self.hc_test_obj_4 = hl.HexCoords(1, -1, 0)
+        self.hc_test_obj_4 = HexCoords(1, -1, 0)
     
     def test_error(self):
         with self.assertRaises(TypeError):
-            hc_test_obj_0 = hl.HexCoords("1", -1, 0)
-            hc_test_obj_1 = hl.HexCoords(1, "-1", 0)
-            hc_test_obj_2 = hl.HexCoords(1, -1, "0")
+            hc_test_obj_0 = HexCoords("1", -1, 0)
+            hc_test_obj_1 = HexCoords(1, "-1", 0)
+            hc_test_obj_2 = HexCoords(1, -1, "0")
             
-        with self.assertRaises(hl.ConstraintViolation):
-            hc_test_obj_3 = hl.HexCoords(1, -1, 1)
+        with self.assertRaises(ConstraintViolation):
+            hc_test_obj_3 = HexCoords(1, -1, 1)
     
     def test_attributes(self):
         self.assertIs(self.hc_test_obj_4.q, 1)
@@ -200,7 +200,7 @@ class TestGraphMatrix(unittest.TestCase):
         with self.assertRaises(AttributeError):
             test_matrix_1 = hl.GraphMatrix(self.test_grp_1)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             test_matrix_2 = hl.GraphMatrix(self.test_grp_2)
     
     def test_init_attributes(self):
@@ -229,7 +229,7 @@ class TestGraphMatrix(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.test_matrix_4.breadth_first_search(self.obj_0, (0, -5, 5))
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             self.test_matrix_4.breadth_first_search((1, 5, -5), (0, -5, 5))
     
     def test_breadth_first_search_inout(self):
@@ -246,7 +246,7 @@ class TestGraphMatrix(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.test_matrix_4.dijkstras_algorithm(self.obj_0, (0, -5, 5))
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             self.test_matrix_4.dijkstras_algorithm((1, 5, -5), (0, -5, 5))
     
     def test_dijkstras_algorithm_inout(self):
@@ -264,7 +264,7 @@ class TestGraphMatrix(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.test_matrix_4.a_star_algorithm(self.obj_0, (0, -5, 5))
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             self.test_matrix_4.a_star_algorithm((1, 5, -5), (0, -5, 5))
     
     def test_a_star_algorithm_inout(self):
@@ -333,38 +333,38 @@ class TestTupleOrObject(unittest.TestCase):
             hl.container_or_object(2, 2)
         with self.assertRaises(AttributeError):
             hl.container_or_object(self.obj_1, 2)
-        with self.assertRaises(hl.ConstraintViolation):
-            hl.container_or_object(hl.HexCoords(1, 2, 3), 3)
+        with self.assertRaises(ConstraintViolation):
+            hl.container_or_object(HexCoords(1, 2, 3), 3)
         
     def test_inout(self):
         # Object 2dim as input ---------------------------------------------- #
         self.assertEqual(hl.container_or_object(self.obj_0, 2), (1, 1))
-        self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="Coords"), hl.RectCoords(1, 1))
+        self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="Coords"), RectCoords(1, 1))
         self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="List"), [1, 1])
         self.assertEqual(hl.container_or_object(self.obj_0, 2, return_obj_type="Dict"), {"x":1, "y":1})
         # Object 3dim as input ---------------------------------------------- #
         self.assertEqual(hl.container_or_object(self.obj_0, 3), (2, -2, 0))
-        self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="Coords"), hl.HexCoords(2, -2, 0))
+        self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="Coords"), HexCoords(2, -2, 0))
         self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="List"), [2, -2, 0])
         self.assertEqual(hl.container_or_object(self.obj_0, 3, return_obj_type="Dict"), {"q":2, "r":-2, "s":0})
         # Tuple 2dim as input ----------------------------------------------- #
         self.assertEqual(hl.container_or_object((2, 3), 2), (2, 3))
-        self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="Coords"), hl.RectCoords(2, 3))
+        self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="Coords"), RectCoords(2, 3))
         self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="List"), [2, 3])
         self.assertEqual(hl.container_or_object((2, 3), 2, return_obj_type="Dict"), {"x":2, "y":3})
         # Tuple 3dim as input ----------------------------------------------- #
         self.assertEqual(hl.container_or_object((3, 0, -3), 3), (3, 0, -3))
-        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Coords"), hl.HexCoords(3, 0, -3))
+        self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Coords"), HexCoords(3, 0, -3))
         self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="List"), [3, 0, -3])
         self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Dict"), {"q":3, "r":0, "s":-3})
         # RectCoords as input ----------------------------------------------- #
-        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2), (2, 3))
-        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="Coords"), hl.RectCoords(2, 3))
-        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="List"), [2, 3])
-        self.assertEqual(hl.container_or_object(hl.RectCoords(2, 3), 2, return_obj_type="Dict"), {"x":2, "y":3})
+        self.assertEqual(hl.container_or_object(RectCoords(2, 3), 2), (2, 3))
+        self.assertEqual(hl.container_or_object(RectCoords(2, 3), 2, return_obj_type="Coords"), RectCoords(2, 3))
+        self.assertEqual(hl.container_or_object(RectCoords(2, 3), 2, return_obj_type="List"), [2, 3])
+        self.assertEqual(hl.container_or_object(RectCoords(2, 3), 2, return_obj_type="Dict"), {"x":2, "y":3})
         # HexCoords as input ------------------------------------------------ #
-        self.assertEqual(hl.container_or_object(hl.HexCoords(3, 0, -3), 3), (3, 0, -3))
-        self.assertEqual(hl.container_or_object(hl.HexCoords(3, 0, -3), 3, return_obj_type="Coords"), hl.HexCoords(3, 0, -3))
+        self.assertEqual(hl.container_or_object(HexCoords(3, 0, -3), 3), (3, 0, -3))
+        self.assertEqual(hl.container_or_object(HexCoords(3, 0, -3), 3, return_obj_type="Coords"), HexCoords(3, 0, -3))
         self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="List"), [3, 0, -3])
         self.assertEqual(hl.container_or_object((3, 0, -3), 3, return_obj_type="Dict"), {"q":3, "r":0, "s":-3})
         
@@ -521,7 +521,7 @@ class TestCubeLinint(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.cube_linint(self.obj_2, (2, 0, -2), 0.2)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.cube_linint((1, 0, -2), self.obj_0, 0.5)
     
     def test_inout(self):
@@ -610,21 +610,21 @@ class TestRoundHex(unittest.TestCase):
         with self.assertRaises(TypeError):
             hl.round_hex((2, 0, "-2"))
             hl.round_hex((2, "0", -2))
-            hl.round_hex(hl.HexCoords("2", 0, -2))
+            hl.round_hex(HexCoords("2", 0, -2))
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.round_hex((2, 2, 3), return_obj_type="Coords")
-            hl.round_hex(hl.HexCoords(2, 2, 3), return_obj_type="List")
+            hl.round_hex(HexCoords(2, 2, 3), return_obj_type="List")
     
     def test_inout(self):
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3)), (1, 3, -4))
-        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="Coords"), hl.HexCoords(1, 3, -4))
+        self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="Coords"), HexCoords(1, 3, -4))
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="List"), [1, 3, -4])
         self.assertEqual(hl.round_hex((1.2, 3.1, -4.3), return_obj_type="Dict"), {"q":1, "r":3, "s":-4})
-        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7)), hl.HexCoords(1, 2, -3))
-        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="Coords"), hl.HexCoords(1, 2, -3))
-        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="List"), [1, 2, -3])
-        self.assertEqual(hl.round_hex(hl.HexCoords(0.9, 1.8, -2.7), return_obj_type="Dict"), {"q":1, "r":2, "s":-3})
+        self.assertEqual(hl.round_hex(HexCoords(0.9, 1.8, -2.7)), HexCoords(1, 2, -3))
+        self.assertEqual(hl.round_hex(HexCoords(0.9, 1.8, -2.7), return_obj_type="Coords"), HexCoords(1, 2, -3))
+        self.assertEqual(hl.round_hex(HexCoords(0.9, 1.8, -2.7), return_obj_type="List"), [1, 2, -3])
+        self.assertEqual(hl.round_hex(HexCoords(0.9, 1.8, -2.7), return_obj_type="Dict"), {"q":1, "r":2, "s":-3})
 
 
 # TestGetxy ----------------------------------------------------------------- #  
@@ -745,7 +745,7 @@ class TestSetqrs(unittest.TestCase):
         with self.assertRaises(TypeError):
             hl.set_qrs(self.obj_0, 1, 0, "-1")
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.set_qrs(self.obj_0, 1, 1, 0)
     
     def test_inout(self):
@@ -795,7 +795,7 @@ class TestHexToPixel(unittest.TestCase):
             hl.hex_to_pixel(self.obj_0)
         with self.assertRaises(AttributeError):
             hl.hex_to_pixel(self.obj_1)
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.hex_to_pixel((2, 0, -1))
     
     def test_inout(self):
@@ -909,7 +909,7 @@ class TestGetAngle(unittest.TestCase):
             hl.get_angle((0,0), (1,"0"), expected_len_a=2, expected_len_b=2)
         with self.assertRaises(AttributeError):
             hl.get_angle(self.obj_0, self.obj_2, expected_len_a=2, expected_len_b=2)
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.get_angle((2,3,-4), (2,1,-1))
     
     def test_inout(self):
@@ -944,7 +944,7 @@ class TestNeighbors(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.neighbors(self.obj_0)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.neighbors((1, 0, -2))
     
     def test_inout(self):
@@ -998,7 +998,7 @@ class TestDistance(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.distance((0, 0, 0), self.obj_0)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.distance((0, -1, 2), (-2, 0, 2))
     
     def test_inout(self):
@@ -1051,7 +1051,7 @@ class TestInRange(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.in_range(self.obj_1, 1)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.in_range((1, 0, -2), 3)
     
     def test_inout(self):
@@ -1115,7 +1115,7 @@ class TestLineDraw(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hl.line_draw(self.obj_2, self.obj_1)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.line_draw(HexCoords(0, 0, 0), (1, -3, 1))
     
     def test_inout(self):
@@ -1198,7 +1198,7 @@ class TestDistLimFloodFill(unittest.TestCase):
             hl.dist_lim_flood_fill(self.obj_3, 1, self.test_grp_1)
             hl.dist_lim_flood_fill(self.obj_0, 1, self.test_grp_3)
         
-        with self.assertRaises(hl.ConstraintViolation):
+        with self.assertRaises(ConstraintViolation):
             hl.dist_lim_flood_fill(self.obj_2, 1, self.test_grp_3)
             hl.dist_lim_flood_fill(self.obj_3, 1, self.test_grp_2)
     

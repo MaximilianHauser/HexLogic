@@ -11,6 +11,9 @@
 ## Fixed
 
  - line 107 and 108 in README.md, was still referring to an old version of the function
+ - fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
+ - fixed invalid escape sequence printout for diagram at the head of example.py
+ - removed some nonsense I wrote from the readme
 
 <!-- id='changelog-0.1'-->
 # 0.1 — 2025-02-04

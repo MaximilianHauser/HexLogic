@@ -34,7 +34,6 @@ the following features:
  - Drop-in usability can be achieved using an object-oriented approach, as Python allows for multiple inheritance. Despite that opting for a function based approach, has the benefit, of only having to add the coordinates to the objects positioned on the hexagonal grid, which ultimately keeps the separation between the different building blocks of code cleaner and sidesteps possible conflicts between parent classes.
  - The file started out as a part of a Pygame-CE project, as a result, the design is built around the idea of positioning units, tiles etc. being childclasses of pygame.sprite.Sprite on a map.
  - A lesson learned from this ongoing project, is that with increasing scope of the project it becomes desirable to catch errors early, which is the reason for the divergence from the minimalistic pythonic approach to code.
- - "breadth_first_search" and "dijkstras_algorithm" were included, albeit being inferior to "a_star_algorithm", as I plan on using a modified functionality of each for my projects AI and/or a game mechanic
 
 
 ## Prerequisites
@@ -184,7 +183,7 @@ Modified version of Dijkstra’s Algorithm that is optimized for a single destin
 List of issues to be solved before the package will be released at version 1.0
 
 * [x] eliminate dependency on NumPy and Pandas, by replacing the interim solution for graph matrix storage with built-in types
-* [ ] add example.py
+* [x] add example.py
 * [x] ~~identify and test for edge cases~~
 * [ ] modify round_container to work for infinitely nested containers
 * [x] add a set ~~that is ?automatically? updated~~, containing all coordinates which are linked in GraphMatrix
@@ -192,18 +191,18 @@ List of issues to be solved before the package will be released at version 1.0
 * [x] replace "block_var" artifacts with movement_cost = 0 -> tile = blocked for "dist_lim_flood_fill"
 * [x] add pathfinding functions as methods to GraphMatrix
 * [x] negative movement_cost for blocking movement instead of 0 ?
-* [ ] refactor code to be organized around one class handling all the logic affecting objects in passed container (like observer.py etc.), keep functions only implementation ???
-* [ ] find out why and fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
+* [x] ~~refactor code to be organized around one class handling all the logic affecting objects in passed container (like observer.py etc.), keep functions only implementation ???~~
+* [x] ~~find out why and~~ fix imports in test not working (RectCoords instead of hl.RectCoords etc.)
 * [x] add ~~a raise error, if a goal or start is passed to pathfinding, which is inaccessible (has negative movement_cost)~~ option to test accessibility
 * [x] add a "if not connected functionality" to pathfinding algorithms
 * [x] update TestTestgrpGenerator unittest, block_var to movement_cost
 * [x] add a mechanic to GraphMatrix methods del_entry and update_entry that update GraphMatrix.matrix_coords
 * [x] add List and Dictionary as a return option for functions, which offered only Tuple and RectCoords/HexCoords
 * [x] update remaining unittests to test for dictionary and list outputs, as well as modified GraphMatrix pathfinding
-* [ ] format text so it is displayed correctly in editors help function if possible
+* [x] format text so it is displayed correctly in editors help function if possible
 * [x] ~~find a way around the unhashable type error for~~ in_range or just return as list or dict instead of set
 * [x] add missing GraphMatrix unittests
-* [ ] fix invalid escape sequence printout for diagram at the head of example.py
+* [x] fix invalid escape sequence printout for diagram at the head of example.py
 * [ ] breadth first search error: TypeError: argument of type 'NoneType' is not iterable
 * [ ] "from_c not in self.matrix_coords and from_c not in destinations" printout in console when running unittests
 
