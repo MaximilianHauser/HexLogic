@@ -15,6 +15,11 @@
  - fixed invalid escape sequence printout for diagram at the head of example.py
  - removed some nonsense I wrote from the readme
 
+## Removed
+
+ - breadth first_search, from hexlogic, unittests, __init__.py, README and example
+ - dijkstras algorithm, from hexlogic, unittests, __init__.py, README and example
+
 <!-- id='changelog-0.1'-->
 # 0.1 — 2025-02-04
 

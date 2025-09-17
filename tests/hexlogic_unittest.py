@@ -221,41 +221,6 @@ class TestGraphMatrix(unittest.TestCase):
         self.test_matrix_4.del_entry((0, -5, 5), (0, -6, 6))
         self.test_matrix_4.del_entry((0, -6, 6), (0, -5, 5))
         self.assertNotIn((0, -6, 6), self.test_matrix_4.matrix_coords)
-        
-    def test_breadth_first_search_error(self):
-        with self.assertRaises(TypeError):
-            self.test_matrix_4.breadth_first_search((0, 5, "-5"), (0, -5, 5))
-        
-        with self.assertRaises(AttributeError):
-            self.test_matrix_4.breadth_first_search(self.obj_0, (0, -5, 5))
-        
-        with self.assertRaises(ConstraintViolation):
-            self.test_matrix_4.breadth_first_search((1, 5, -5), (0, -5, 5))
-    
-    def test_breadth_first_search_inout(self):
-        self.assertEqual(self.test_matrix_4.breadth_first_search((0, 5, -5), (0, -5, 5)), 
-                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), (3, 0, -3), 
-                          (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), (-1, 0, 1), (-2, 1, 1), 
-                          (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), 
-                          (0, -3, 3), (0, -4, 4), (0, -5, 5)])
-    
-    def test_dijkstras_algorithm_error(self):
-        with self.assertRaises(TypeError):
-            self.test_matrix_4.dijkstras_algorithm((0, 5, "-5"), (0, -5, 5))
-        
-        with self.assertRaises(AttributeError):
-            self.test_matrix_4.dijkstras_algorithm(self.obj_0, (0, -5, 5))
-        
-        with self.assertRaises(ConstraintViolation):
-            self.test_matrix_4.dijkstras_algorithm((1, 5, -5), (0, -5, 5))
-    
-    def test_dijkstras_algorithm_inout(self):
-        self.assertEqual(self.test_matrix_4.dijkstras_algorithm((0, 5, -5), (0, -5, 5)),
-                         [(0, 5, -5), (1, 4, -5), (2, 3, -5), (3, 2, -5), (3, 1, -4), 
-                          (3, 0, -3), (3, -1, -2), (2, -1, -1), (1, -1, 0), (0, -1, 1), 
-                          (-1, 0, 1), (-2, 1, 1), (-3, 2, 1), (-4, 2, 2), (-4, 1, 3), 
-                          (-3, 0, 3), (-2, -1, 3), (-1, -2, 3), (0, -3, 3), (0, -4, 4), 
-                          (0, -5, 5)])
     
     def test_a_star_algorithm_error(self):
         with self.assertRaises(TypeError):
